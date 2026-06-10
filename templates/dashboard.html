@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>DompetKu</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <link
       rel="stylesheet"
@@ -11,6 +12,7 @@
   <body>
     <div class="container">
       <h1>💰 DompetKu</h1>
+      <button id="darkModeBtn" class="btn-dark">🌙 Dark Mode</button>
 
       <div class="card">
         <h3>💰 Saldo Saat Ini</h3>
@@ -34,40 +36,132 @@
         </div>
       </div>
 
-      <a href="/tambah" class="btn">+Tambah Transaksi </a>
-      <a href="/target" class="btn">🎯Target Tabungan</a>
-      <a href="/budget" class="btn">💸Budget Bulanan</a>
+      <div class="menu-grid">
+        <a href="/target" class="btn"> 🎯 Target </a>
+        <a href="/budget" class="btn"> 💸 Budget </a>
+        <a href="/export" class="btn"> 📂 Export Excel </a>
+      </div>
       <br /><br />
 
       <div class="card">
+        <h2>📊 Pengeluaran per Kategori</h2>
+
+        <canvas id="kategoriChart"></canvas>
+      </div>
+      <div class="card">
         <h2>Riwayat Transaksi</h2>
 
-        <table>
-          <tr>
-            <th>Tanggal</th>
-            <th>Jenis</th>
-            <th>Kategori</th>
-            <th>Nominal</th>
-            <th>Catatan</th>
-            <th>Aksi</th>
-          </tr>
+        {% for t in transaksi %}
 
-          {% for t in transaksi %}
+        <div class="transaction-card">
+          <div class="transaction-top">
+            <div>
+              <h3>{{ t[3] }}</h3>
 
-          <tr>
-            <td>{{ t[1] }}</td>
-            <td>{{ t[2] }}</td>
-            <td>{{ t[3] }}</td>
-            <td>Rp {{ t[4] | rupiah}}</td>
-            <td>{{ t[5] }}</td>
-            <td>
-              <a href="/hapus/{{ t[0] }}"> Hapus </a>
-            </td>
-          </tr>
+              <small>{{ t[1] }}</small>
+            </div>
 
-          {% endfor %}
-        </table>
+            <div>
+              {% if t[2] == "Pemasukan" %}
+
+              <span class="income-text"> + Rp {{ t[4] | rupiah }} </span>
+
+              {% else %}
+
+              <span class="expense-text"> - Rp {{ t[4] | rupiah }} </span>
+
+              {% endif %}
+            </div>
+          </div>
+
+          <p>{{ t[5] }}</p>
+
+          <a href="/hapus/{{ t[0] }}" class="delete-btn"> Hapus </a>
+        </div>
+
+        {% endfor %}
       </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+      const labels = JSON.parse("{{ labels | tojson | safe }}");
+      const values = JSON.parse("{{ values | tojson | safe }}");
+
+      const ctx = document.getElementById("kategoriChart");
+
+      new Chart(ctx, {
+        type: "doughnut",
+
+        data: {
+          labels: labels,
+
+          datasets: [
+            {
+              label: "Pengeluaran per Kategori",
+
+              data: values,
+
+              backgroundColor: [
+                "#10B981",
+                "#3B82F6",
+                "#F59E0B",
+                "#EF4444",
+                "#8B5CF6",
+                "#06B6D4",
+                "#F97316",
+              ],
+            },
+          ],
+        },
+
+        options: {
+          responsive: true,
+
+          plugins: {
+            legend: {
+              position: "bottom",
+            },
+          },
+        },
+      });
+    </script>
+    <div class="bottom-nav">
+      <a href="/">
+        🏠
+        <span>Home</span>
+      </a>
+
+      <a href="/target">
+        🎯
+        <span>Target</span>
+      </a>
+
+      <a href="/budget">
+        💸
+        <span>Budget</span>
+      </a>
+
+      <a href="/tambah">
+        ➕
+        <span>Tambah</span>
+      </a>
+    </div>
+    <script>
+      const btn = document.getElementById("darkModeBtn");
+
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark");
+      }
+
+      btn.addEventListener("click", () => {
+        document.body.classList.toggle("dark");
+
+        localStorage.setItem(
+          "darkMode",
+          document.body.classList.contains("dark"),
+        );
+      });
+    </script>
   </body>
 </html>

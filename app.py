@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, send_file
+from openpyxl import Workbook
+import os
 
 from database.db import (
     init_db,
@@ -10,7 +12,8 @@ from database.db import (
     ambil_target,
     simpan_target,
     simpan_budget,
-    ambil_budget
+    ambil_budget,
+    ambil_pengeluaran_per_kategori
 )
 
 app = Flask(__name__)
@@ -31,13 +34,22 @@ def dashboard():
     saldo = hitung_saldo()
 
     pemasukan, pengeluaran = hitung_ringkasan()
+    kategori_data = ambil_pengeluaran_per_kategori()
 
+    labels = []
+    values = []
+
+    for item in kategori_data:
+        labels.append(item[0])
+        values.append(item[1])
     return render_template(
         "dashboard.html",
         transaksi=transaksi,
         saldo=saldo,
         pemasukan=pemasukan,
-        pengeluaran=pengeluaran
+        pengeluaran=pengeluaran,
+        labels=labels,
+        values=values
     )
 
 
@@ -144,6 +156,44 @@ def budget():
         "budget.html",
         budget=data_budget,
         pengeluaran=pengeluaran
+    )
+
+@app.route("/export")
+def export_excel():
+
+    transaksi = ambil_semua_transaksi()
+
+    wb = Workbook()
+
+    ws = wb.active
+
+    ws.title = "Laporan Keuangan"
+
+    ws.append([
+        "Tanggal",
+        "Jenis",
+        "Kategori",
+        "Nominal",
+        "Catatan"
+    ])
+
+    for t in transaksi:
+
+        ws.append([
+            t[1],
+            t[2],
+            t[3],
+            t[4],
+            t[5]
+        ])
+
+    file_name = "laporan_keuangan.xlsx"
+
+    wb.save(file_name)
+
+    return send_file(
+        file_name,
+        as_attachment=True
     )
 
 if __name__ == "__main__":

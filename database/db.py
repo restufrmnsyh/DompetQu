@@ -218,3 +218,22 @@ def ambil_budget():
     conn.close()
 
     return data
+
+def ambil_pengeluaran_per_kategori():
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT kategori,
+           SUM(nominal)
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+    GROUP BY kategori
+    """)
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data
