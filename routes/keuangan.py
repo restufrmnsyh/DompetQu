@@ -4,6 +4,7 @@ from flask import (
     request,
     redirect
 )
+from flask import session
 
 from database.db import (
     ambil_target,
@@ -20,7 +21,9 @@ keuangan = Blueprint(
 
 @keuangan.route("/target", methods=["GET", "POST"])
 def target():
-
+    if "login" not in session:
+        return redirect("/login")
+    
     if request.method == "POST":
 
         nama_target = request.form["nama_target"]
@@ -65,7 +68,9 @@ def target():
 
 @keuangan.route("/budget", methods=["GET", "POST"])
 def budget():
-
+    if "login" not in session:
+        return redirect("/login")
+    
     if request.method == "POST":
 
         bulan = request.form["bulan"]
@@ -85,8 +90,23 @@ def budget():
 
     pemasukan, pengeluaran = hitung_ringkasan()
 
+    persentase = 0
+    status = ""
+    if data_budget:
+        batas_budget = data_budget[2]
+        if batas_budget > 0:
+            persentase = (
+                pengeluaran / batas_budget
+            ) * 100
+            if persentase >= 100:
+                status = "over"
+            elif persentase >= 80:
+                status = "warning"
+
     return render_template(
         "budget.html",
         budget=data_budget,
-        pengeluaran=pengeluaran
+        pengeluaran=pengeluaran,
+        persentase=persentase,
+        status=status
     )

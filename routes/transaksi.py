@@ -11,8 +11,11 @@ from database.db import (
     tambah_transaksi,
     hapus_transaksi,
     hitung_ringkasan,
-    ambil_pengeluaran_per_kategori
+    ambil_pengeluaran_per_kategori,
+    ambil_kategori
 )
+
+from flask import session
 
 transaksi = Blueprint(
     "transaksi",
@@ -21,6 +24,8 @@ transaksi = Blueprint(
 
 @transaksi.route("/")
 def dashboard():
+    if "login" not in session:
+        return redirect("/login")
 
     transaksi_data = ambil_semua_transaksi()
 
@@ -38,6 +43,8 @@ def dashboard():
         labels.append(item[0])
         values.append(item[1])
 
+    print("LABELS =", labels)
+    print("VALUES =", values)
     return render_template(
         "dashboard.html",
         transaksi=transaksi_data,
@@ -51,6 +58,9 @@ def dashboard():
 @transaksi.route("/tambah", methods=["GET", "POST"])
 def tambah():
 
+    if "login" not in session:
+        return redirect("/login")
+
     if request.method == "POST":
 
         tanggal = request.form["tanggal"]
@@ -59,9 +69,7 @@ def tambah():
 
         kategori = request.form["kategori"]
 
-        nominal = int(
-            request.form["nominal"]
-        )
+        nominal = int(request.form["nominal"])
 
         catatan = request.form["catatan"]
 
@@ -74,13 +82,17 @@ def tambah():
         )
 
         return redirect("/")
-
+    kategori = ambil_kategori()
     return render_template(
-        "tambah.html"
+        "tambah.html", 
+        kategori=kategori
     )
 
 @transaksi.route("/hapus/<int:id>")
 def hapus(id):
+
+    if "login" not in session:
+        return redirect("/login")
 
     hapus_transaksi(id)
 

@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Profil</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>👤 Profil</h1>
+
+        <p>
+          Username :
+          <b>{{ username }}</b>
+        </p>
+
+        {% if pesan %}
+
+        <p style="color: green">{{ pesan }}</p>
+
+        {% endif %}
+
+        <form method="POST">
+          <label>Password Lama</label>
+          <br />
+
+          <input type="password" name="password_lama" required />
+
+          <br /><br />
+
+          <label>Password Baru</label>
+          <br />
+
+          <input type="password" name="password_baru" required />
+
+          <br /><br />
+
+          <button class="btn">Simpan</button>
+        </form>
+
+        <br />
+
+        <a href="/" class="btn"> Kembali </a>
+      </div>
+    </div>
+  </body>
+</html>

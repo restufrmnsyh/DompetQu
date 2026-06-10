@@ -11,8 +11,16 @@
   </head>
   <body>
     <div class="container">
-      <h1>💰 DompetKu</h1>
-      <button id="darkModeBtn" class="btn-dark">🌙 Dark Mode</button>
+      <div class="header-top">
+        <h1>💰 DompetKu</h1>
+
+        <div class="header-actions">
+          <button id="darkModeBtn" class="btn-dark">🌙</button>
+
+          <a href="/profil" class="logout-btn"> 👤 </a>
+          <a href="/logout" class="logout-btn">⎋</a>
+        </div>
+      </div>
 
       <div class="card">
         <h3>💰 Saldo Saat Ini</h3>
@@ -37,11 +45,13 @@
       </div>
 
       <div class="menu-grid">
+        <a href="/tambah" class="btn"> ➕ Tambah Transaksi </a>
         <a href="/target" class="btn"> 🎯 Target </a>
         <a href="/budget" class="btn"> 💸 Budget </a>
         <a href="/export" class="btn"> 📂 Export Excel </a>
         <a href="/backup" class="btn"> 💾 Backup Data </a>
         <a href="/restore" class="btn"> 📥 Restore </a>
+        <a href="/kategori" class="btn"> 📂 Kategori </a>
       </div>
       <br /><br />
 
@@ -87,45 +97,44 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-      const labels = JSON.parse("{{ labels | tojson | safe }}");
-      const values = JSON.parse("{{ values | tojson | safe }}");
+
+      const labels = {{ labels | tojson | safe }};
+      const values = {{ values | tojson | safe }};
 
       const ctx = document.getElementById("kategoriChart");
 
       new Chart(ctx, {
-        type: "doughnut",
 
-        data: {
-          labels: labels,
+          type: "doughnut",
 
-          datasets: [
-            {
-              label: "Pengeluaran per Kategori",
+          data: {
 
-              data: values,
+              labels: labels,
 
-              backgroundColor: [
-                "#10B981",
-                "#3B82F6",
-                "#F59E0B",
-                "#EF4444",
-                "#8B5CF6",
-                "#06B6D4",
-                "#F97316",
-              ],
-            },
-          ],
-        },
-
-        options: {
-          responsive: true,
-
-          plugins: {
-            legend: {
-              position: "bottom",
-            },
+              datasets: [{
+                  label: "Pengeluaran per Kategori",
+                  data: values,
+                  backgroundColor: [
+                      "#10B981",
+                      "#3B82F6",
+                      "#F59E0B",
+                      "#EF4444",
+                      "#8B5CF6",
+                      "#06B6D4",
+                      "#F97316"
+                  ]
+              }]
           },
-        },
+
+          options: {
+              responsive: true,
+              plugins: {
+                  legend: {
+                      position: "bottom"
+                  }
+              }
+          }
+
       });
     </script>
     <div class="bottom-nav">

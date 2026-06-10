@@ -1,8 +1,7 @@
 <!doctype html>
 <html>
   <head>
-    <meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Budget Bulanan</title>
 
     <link
@@ -52,5 +51,23 @@
 
       {% endif %}
     </div>
+
+    {% if budget %}
+
+    <hr />
+
+    <h3>Status Budget</h3>
+
+    <p>Terpakai: {{ persentase|round(1) }}%</p>
+
+    {% if status == "warning" %}
+
+    <div class="warning-box">⚠ Budget sudah terpakai lebih dari 80%</div>
+
+    {% endif %} {% if status == "over" %}
+
+    <div class="danger-box">🚨 Budget sudah terlampaui!</div>
+
+    {% endif %} {% endif %}
   </body>
 </html>

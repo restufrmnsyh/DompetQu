@@ -32,6 +32,49 @@ def init_db():
     )
     """)
 
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL
+    )
+    """)
+
+    cursor.execute("""
+    INSERT OR IGNORE INTO users
+    (username, password)
+    VALUES (?, ?)
+    """, (
+
+        "restu",
+        "12345"
+
+    ))
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS kategori (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+        nama TEXT UNIQUE NOT NULL
+
+    )
+    """)
+    
+    kategori_default = [
+        "Makanan",
+        "Minuman",
+        "Belanja",
+        "BBM"
+    ]
+
+    for k in kategori_default:
+        cursor.execute("""
+        INSERT OR IGNORE INTO kategori
+        (nama)
+        VALUES (?)
+        """, (k,))
+
     conn.commit()
     conn.close()
 
@@ -214,9 +257,7 @@ def ambil_budget():
     """)
 
     data = cursor.fetchone()
-
     conn.close()
-
     return data
 
 def ambil_pengeluaran_per_kategori():
@@ -266,6 +307,115 @@ def restore_transaksi(data):
             item["catatan"]
 
         ))
+
+    conn.commit()
+    conn.close()
+
+def cek_login(username, password):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM users
+    WHERE username = ?
+    AND password = ?
+    """, (
+
+        username,
+        password
+
+    ))
+
+    user = cursor.fetchone()
+    conn.close()
+    return user
+
+def ganti_password(username, password_lama, password_baru):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM users
+    WHERE username = ?
+    AND password = ?
+    """, (
+
+        username,
+        password_lama
+
+    ))
+
+    user = cursor.fetchone()
+
+    if not user:
+
+        conn.close()
+
+        return False
+
+    cursor.execute("""
+    UPDATE users
+    SET password = ?
+    WHERE username = ?
+    """, (
+
+        password_baru,
+        username
+
+    ))
+
+    conn.commit()
+    conn.close()
+
+    return True
+
+def ambil_kategori():
+
+    conn = sqlite3.connect("database.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM kategori
+    ORDER BY nama
+    """)
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data
+
+def tambah_kategori(nama):
+
+    conn = sqlite3.connect("database.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    INSERT INTO kategori
+    (nama)
+    VALUES (?)
+    """, (nama,))
+
+    conn.commit()
+    conn.close()
+
+def hapus_kategori(id):
+
+    conn = sqlite3.connect("database.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM kategori
+    WHERE id = ?
+    """, (id,))
 
     conn.commit()
     conn.close()

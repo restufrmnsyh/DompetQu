@@ -5,7 +5,7 @@ from flask import (
     redirect,
     send_file
 )
-
+from flask import session
 from openpyxl import Workbook
 
 import json
@@ -24,7 +24,8 @@ laporan = Blueprint(
 
 @laporan.route("/export")
 def export_excel():
-
+    if "login" not in session:
+        return redirect("/login")
     transaksi = ambil_semua_transaksi()
 
     wb = Workbook()
@@ -63,7 +64,8 @@ def export_excel():
 
 @laporan.route("/backup")
 def backup():
-
+    if "login" not in session:
+        return redirect("/login")
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
 
@@ -104,7 +106,8 @@ def backup():
 
 @laporan.route("/restore", methods=["GET", "POST"])
 def restore():
-
+    if "login" not in session:
+        return redirect("/login")
     if request.method == "POST":
 
         file = request.files["file"]
