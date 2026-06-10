@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Target Tabungan</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>🎯 Target Tabungan</h1>
+
+        <form method="POST">
+
+            <label>Nama Target</label>
+            <br>
+            <input type="text"
+                   name="nama_target"
+                   required>
+            <br><br>
+
+            <label>Target Dana</label>
+            <br>
+            <input type="number"
+                   name="target_nominal"
+                   required>
+            <br><br>
+
+            <label>Dana Terkumpul</label>
+            <br>
+            <input type="number"
+                   name="nominal_terkumpul"
+                   required>
+            <br><br>
+
+            <button class="btn" type="submit">
+                Simpan
+            </button>
+
+            <a href="/" class="btn">
+                Dashboard
+            </a>
+
+        </form>
+
+    </div>
+
+    {% if target %}
+
+    <div class="card">
+
+        <h2>{{ target[1] }}</h2>
+
+        <p>
+            Target :
+            Rp {{ target[2] | rupiah }}
+        </p>
+
+        <p>
+            Terkumpul :
+            Rp {{ target[3] | rupiah }}
+        </p>
+
+        <p>
+            Progress :
+            {{ "%.1f"|format(progress) }}%
+        </p>
+
+        <div class="progress-bar">
+
+            <div class="progress-fill"
+                style="width: {{ progress|round(0) }}%;">
+            </div>
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>

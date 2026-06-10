@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <title>DompetKu</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>💰 DompetKu</h1>
+
+      <div class="card">
+        <h3>💰 Saldo Saat Ini</h3>
+
+        <div class="saldo">Rp {{ saldo | rupiah }}</div>
+
+        <div class="summary">
+          <div class="summary-item">
+            <div class="summary-title">Pemasukan</div>
+
+            <div class="summary-value income">Rp {{ pemasukan | rupiah }}</div>
+          </div>
+
+          <div class="summary-item">
+            <div class="summary-title">Pengeluaran</div>
+
+            <div class="summary-value expense">
+              Rp {{ pengeluaran | rupiah }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <a href="/tambah" class="btn">+Tambah Transaksi </a>
+      <a href="/target" class="btn">🎯Target Tabungan</a>
+      <a href="/budget" class="btn">💸Budget Bulanan</a>
+      <br /><br />
+
+      <div class="card">
+        <h2>Riwayat Transaksi</h2>
+
+        <table>
+          <tr>
+            <th>Tanggal</th>
+            <th>Jenis</th>
+            <th>Kategori</th>
+            <th>Nominal</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+          </tr>
+
+          {% for t in transaksi %}
+
+          <tr>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] }}</td>
+            <td>Rp {{ t[4] | rupiah}}</td>
+            <td>{{ t[5] }}</td>
+            <td>
+              <a href="/hapus/{{ t[0] }}"> Hapus </a>
+            </td>
+          </tr>
+
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </body>
+</html>

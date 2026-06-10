@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tambah Transaksi</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>Tambah Transaksi</h1>
+
+        <form method="POST">
+
+            <label>Tanggal</label><br>
+            <input type="date" name="tanggal" required>
+            <br><br>
+
+            <label>Jenis</label><br>
+            <select name="jenis">
+                <option>Pemasukan</option>
+                <option>Pengeluaran</option>
+            </select>
+            <br><br>
+
+            <label>Kategori</label><br>
+            <input type="text" name="kategori" required>
+            <br><br>
+
+            <label>Nominal</label><br>
+            <input type="number" name="nominal" required>
+            <br><br>
+
+            <label>Catatan</label><br>
+            <textarea name="catatan"></textarea>
+            <br><br>
+
+            <button class="btn" type="submit">
+                Simpan
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

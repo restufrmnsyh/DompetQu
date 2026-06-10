@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Budget Bulanan</title>
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card">
+        <h1>💸 Budget Bulanan</h1>
+
+        <form method="POST">
+          <label>Bulan</label>
+          <br />
+          <input type="text" name="bulan" placeholder="Juni 2026" required />
+          <br /><br />
+
+          <label>Jumlah Budget</label>
+          <br />
+          <input type="number" name="jumlah_budget" required />
+          <br /><br />
+
+          <button class="btn">Simpan</button>
+
+          <a href="/" class="btn"> Dashboard </a>
+        </form>
+      </div>
+
+      {% if budget %}
+
+      <div class="card">
+        <h2>{{ budget[1] }}</h2>
+
+        <p>Budget : Rp {{ budget[2] | rupiah }}</p>
+
+        <p>Terpakai : Rp {{ pengeluaran | rupiah }}</p>
+
+        <p>Sisa : Rp {{ (budget[2] - pengeluaran) | rupiah }}</p>
+
+        {% if pengeluaran > budget[2] %}
+
+        <p style="color: red">⚠ Budget Terlampaui</p>
+
+        {% endif %}
+      </div>
+
+      {% endif %}
+    </div>
+  </body>
+</html>
