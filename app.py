@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, send_file
 from openpyxl import Workbook
-import os
+import os, json, sqlite3
 
 from database.db import (
     init_db,
@@ -193,6 +193,47 @@ def export_excel():
 
     return send_file(
         file_name,
+        as_attachment=True
+    )
+
+@app.route("/backup")
+def backup():
+
+    conn = sqlite3.connect("database.db")
+    conn.row_factory = sqlite3.Row
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM transaksi
+    """)
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    transaksi = []
+
+    for row in data:
+
+        transaksi.append(dict(row))
+
+    with open(
+        "backup_dompetku.json",
+        "w",
+        encoding="utf-8"
+    ) as f:
+
+        json.dump(
+            transaksi,
+            f,
+            ensure_ascii=False,
+            indent=4
+        )
+
+    return send_file(
+        "backup_dompetku.json",
         as_attachment=True
     )
 
