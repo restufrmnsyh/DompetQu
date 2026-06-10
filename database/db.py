@@ -237,3 +237,35 @@ def ambil_pengeluaran_per_kategori():
     conn.close()
 
     return data
+
+def restore_transaksi(data):
+
+    conn = sqlite3.connect("database.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM transaksi")
+
+    for item in data:
+
+        cursor.execute("""
+        INSERT INTO transaksi
+        (
+            tanggal,
+            jenis,
+            kategori,
+            nominal,
+            catatan
+        )
+        VALUES (?, ?, ?, ?, ?)
+        """, (
+
+            item["tanggal"],
+            item["jenis"],
+            item["kategori"],
+            item["nominal"],
+            item["catatan"]
+
+        ))
+
+    conn.commit()
+    conn.close()

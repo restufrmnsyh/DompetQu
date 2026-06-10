@@ -1,6 +1,6 @@
 [
     {
-        "id": 1,
+        "id": 14,
         "tanggal": "2026-06-10",
         "jenis": "Pengeluaran",
         "kategori": "Makan",
@@ -8,7 +8,7 @@
         "catatan": "Pecel Lele"
     },
     {
-        "id": 2,
+        "id": 15,
         "tanggal": "2026-06-10",
         "jenis": "Pemasukan",
         "kategori": "Transfer",
@@ -16,7 +16,7 @@
         "catatan": "Bulanan Ortu\r\n"
     },
     {
-        "id": 4,
+        "id": 16,
         "tanggal": "2026-06-10",
         "jenis": "Pemasukan",
         "kategori": "harian",
@@ -24,11 +24,19 @@
         "catatan": "argo shopeefood\r\n"
     },
     {
-        "id": 5,
+        "id": 17,
         "tanggal": "2026-06-10",
         "jenis": "Pengeluaran",
         "kategori": "BBM",
         "nominal": 12500,
         "catatan": "Bensin Pertalite"
+    },
+    {
+        "id": 18,
+        "tanggal": "2026-06-10",
+        "jenis": "Pengeluaran",
+        "kategori": "Minuman",
+        "nominal": 14000,
+        "catatan": "belikopi"
     }
 ]

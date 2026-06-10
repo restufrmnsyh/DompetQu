@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Restore Data</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>📥 Restore Data</h1>
+
+        <form method="POST"
+              enctype="multipart/form-data">
+
+            <input
+                type="file"
+                name="file"
+                accept=".json"
+                required>
+
+            <br><br>
+
+            <button class="btn">
+                Restore
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>
