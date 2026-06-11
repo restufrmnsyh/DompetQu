@@ -204,8 +204,8 @@ h1, h2, h3 { margin: 0 0 8px; }
 
 .quick-menu {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
   margin-bottom: 16px;
 }
 

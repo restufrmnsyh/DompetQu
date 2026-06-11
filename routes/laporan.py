@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, send_file, session
+from flask import Blueprint, render_template, request, redirect, send_file, session, flash
 from openpyxl import Workbook
 from openpyxl.styles import Font
 from io import BytesIO
@@ -8,7 +8,8 @@ from database.db import (
     ambil_semua_transaksi, 
     restore_transaksi,
     hitung_ringkasan,
-    hitung_saldo
+    hitung_saldo,
+    reset_transaksi
     )
 
 laporan = Blueprint("laporan", __name__)
@@ -105,3 +106,15 @@ def restore():
                 pesan = f"Gagal restore: {str(e)}"
 
     return render_template("restore.html", pesan=pesan)
+
+@laporan.route("/reset")
+def reset():
+
+    if "login" not in session:
+        return redirect("/login")
+
+    reset_transaksi()
+
+    flash("Semua transaksi berhasil dihapus")
+
+    return redirect("/")

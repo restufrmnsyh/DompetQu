@@ -465,3 +465,15 @@ def ambil_insight():
         kategori_terbesar,
         persentase
     )
+
+def reset_transaksi():
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    DELETE FROM transaksi
+    """)
+
+    conn.commit()
+    conn.close()

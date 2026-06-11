@@ -52,15 +52,15 @@ def dashboard():
     bulan_ini = datetime.now().strftime("%Y-%m")
 
     (
-    total_transaksi,
-    kategori_terbesar,
-    rata_pengeluaran,
-    bulan_aktif
+        total_transaksi,
+        kategori_terbesar,
+        rata_pengeluaran,
+        bulan_aktif
     ) = ambil_statistik_dashboard()
 
     (
-    kategori_terbesar,
-    persentase_pengeluaran
+        kategori_terbesar,
+        persentase_pengeluaran
     ) = ambil_insight()
     return render_template(
         "dashboard.html",
@@ -82,7 +82,7 @@ def dashboard():
         bulan_aktif=bulan_aktif,
         page=page,
         total_page=total_page,
-        persentase_pengeluaran=persentase_pengeluaran,
+        persentase_pengeluaran=persentase_pengeluaran
     )
 
 
