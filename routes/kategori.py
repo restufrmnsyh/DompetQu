@@ -9,7 +9,9 @@ from flask import (
 from database.db import (
     ambil_kategori,
     tambah_kategori,
-    hapus_kategori
+    hapus_kategori,
+    ambil_kategori_by_id,
+    kategori_dipakai
 )
 
 kategori = Blueprint(
@@ -44,5 +46,16 @@ def hapus(id):
     if "login" not in session:
         return redirect("/login")
 
+    data = ambil_kategori_by_id(id)
+
+    if data:
+
+        nama_kategori = data[1]
+
+        if kategori_dipakai(nama_kategori):
+
+            return redirect("/kategori")
+
     hapus_kategori(id)
+
     return redirect("/kategori")

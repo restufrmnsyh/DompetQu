@@ -1,41 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-
-    <title>Restore Data</title>
-
-    <link rel="stylesheet"
-    href="{{ url_for('static', filename='css/style.css') }}">
-
-</head>
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <h1>📥 Restore Data</h1>
-
-        <form method="POST"
-              enctype="multipart/form-data">
-
-            <input
-                type="file"
-                name="file"
-                accept=".json"
-                required>
-
-            <br><br>
-
-            <button class="btn">
-                Restore
-            </button>
-
-        </form>
-
-    </div>
-
+{% extends "base.html" %}
+{% block title %}Restore Data — DompetQu{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="/profil" class="back-btn">← Kembali</a>
+  <h1>📥 Restore Data</h1>
 </div>
-
-</body>
-</html>
+<div class="card">
+  {% if pesan %}
+  <div class="alert alert-danger">{{ pesan }}</div>
+  {% endif %}
+  <p class="text-muted">Upload file backup JSON yang sebelumnya diunduh dari DompetQu. Semua transaksi yang ada akan diganti dengan data dari file tersebut.</p>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="form-group">
+      <label>File Backup (.json)</label>
+      <input type="file" name="file" accept=".json" required>
+    </div>
+    <button class="btn btn-full">Restore Sekarang</button>
+  </form>
+</div>
+{% endblock %}

@@ -19,6 +19,8 @@ auth = Blueprint(
 @auth.route("/login", methods=["GET", "POST"])
 def login():
 
+    pesan = ""
+
     if request.method == "POST":
 
         username = request.form["username"]
@@ -32,13 +34,17 @@ def login():
         if user:
 
             session["login"] = True
-
             session["username"] = username
 
             return redirect("/")
 
+        else:
+
+            pesan = "Username atau password salah"
+
     return render_template(
-        "login.html"
+        "login.html",
+        pesan=pesan
     )
 
 @auth.route("/logout")

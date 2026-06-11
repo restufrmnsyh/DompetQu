@@ -1,25 +1,25 @@
 {% extends "base.html" %}
-{% block title %}Tambah Transaksi — DompetQu{% endblock %}
+{% block title %}Edit Transaksi — DompetQu{% endblock %}
 {% block content %}
 <div class="page-header">
   <a href="/" class="back-btn">← Kembali</a>
-  <h1>➕ Tambah Transaksi</h1>
+  <h1>✏️ Edit Transaksi</h1>
 </div>
 <div class="card">
   <form method="POST">
     <div class="form-group">
       <label>Tanggal</label>
-      <input type="date" name="tanggal" value="{{ today }}" required>
+      <input type="date" name="tanggal" value="{{ t[1] }}" required>
     </div>
     <div class="form-group">
       <label>Jenis</label>
       <div class="jenis-toggle">
         <label class="jenis-opt">
-          <input type="radio" name="jenis" value="Pengeluaran" checked>
+          <input type="radio" name="jenis" value="Pengeluaran" {% if t[2] == 'Pengeluaran' %}checked{% endif %}>
           <span class="jenis-label expense">↓ Pengeluaran</span>
         </label>
         <label class="jenis-opt">
-          <input type="radio" name="jenis" value="Pemasukan">
+          <input type="radio" name="jenis" value="Pemasukan" {% if t[2] == 'Pemasukan' %}checked{% endif %}>
           <span class="jenis-label income">↑ Pemasukan</span>
         </label>
       </div>
@@ -28,19 +28,19 @@
       <label>Kategori</label>
       <select name="kategori">
         {% for k in kategori %}
-        <option value="{{ k[1] }}">{{ k[1] }}</option>
+        <option value="{{ k[1] }}" {% if k[1] == t[3] %}selected{% endif %}>{{ k[1] }}</option>
         {% endfor %}
       </select>
     </div>
     <div class="form-group">
       <label>Nominal (Rp)</label>
-      <input type="number" name="nominal" placeholder="0" min="0" required>
+      <input type="number" name="nominal" value="{{ t[4] }}" min="0" required>
     </div>
     <div class="form-group">
       <label>Catatan <span class="optional">(opsional)</span></label>
-      <textarea name="catatan" placeholder="Keterangan transaksi..."></textarea>
+      <textarea name="catatan">{{ t[5] or '' }}</textarea>
     </div>
-    <button class="btn btn-full" type="submit">Simpan Transaksi</button>
+    <button class="btn btn-full" type="submit">Simpan Perubahan</button>
   </form>
 </div>
 {% endblock %}

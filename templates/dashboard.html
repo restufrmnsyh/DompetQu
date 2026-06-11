@@ -1,178 +1,249 @@
-<!doctype html>
-<html>
-  <head>
-    <title>DompetKu</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <div class="header-top">
-        <h1>💰 DompetKu</h1>
-
-        <div class="header-actions">
-          <button id="darkModeBtn" class="btn-dark">🌙</button>
-
-          <a href="/profil" class="logout-btn"> 👤 </a>
-          <a href="/logout" class="logout-btn">⎋</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>💰 Saldo Saat Ini</h3>
-
-        <div class="saldo">Rp {{ saldo | rupiah }}</div>
-
-        <div class="summary">
-          <div class="summary-item">
-            <div class="summary-title">Pemasukan</div>
-
-            <div class="summary-value income">Rp {{ pemasukan | rupiah }}</div>
-          </div>
-
-          <div class="summary-item">
-            <div class="summary-title">Pengeluaran</div>
-
-            <div class="summary-value expense">
-              Rp {{ pengeluaran | rupiah }}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="menu-grid">
-        <a href="/tambah" class="btn"> ➕ Tambah Transaksi </a>
-        <a href="/target" class="btn"> 🎯 Target </a>
-        <a href="/budget" class="btn"> 💸 Budget </a>
-        <a href="/export" class="btn"> 📂 Export Excel </a>
-        <a href="/backup" class="btn"> 💾 Backup Data </a>
-        <a href="/restore" class="btn"> 📥 Restore </a>
-        <a href="/kategori" class="btn"> 📂 Kategori </a>
-      </div>
-      <br /><br />
-
-      <div class="card">
-        <h2>📊 Pengeluaran per Kategori</h2>
-
-        <canvas id="kategoriChart"></canvas>
-      </div>
-      <div class="card">
-        <h2>Riwayat Transaksi</h2>
-
-        {% for t in transaksi %}
-
-        <div class="transaction-card">
-          <div class="transaction-top">
-            <div>
-              <h3>{{ t[3] }}</h3>
-
-              <small>{{ t[1] }}</small>
-            </div>
-
-            <div>
-              {% if t[2] == "Pemasukan" %}
-
-              <span class="income-text"> + Rp {{ t[4] | rupiah }} </span>
-
-              {% else %}
-
-              <span class="expense-text"> - Rp {{ t[4] | rupiah }} </span>
-
-              {% endif %}
-            </div>
-          </div>
-
-          <p>{{ t[5] }}</p>
-
-          <a href="/hapus/{{ t[0] }}" class="delete-btn"> Hapus </a>
-        </div>
-
-        {% endfor %}
+{% extends "base.html" %} {% block title %}Dashboard — DompetQu{% endblock %} {%
+block content %}
+<div class="saldo-card">
+  <div class="saldo-label">Saldo Saat Ini</div>
+  <div class="saldo-amount {% if saldo < 0 %}saldo-minus{% endif %}">
+    Rp {{ saldo | rupiah }}
+  </div>
+  <div class="saldo-row">
+    <div class="saldo-sub income">
+      <span class="saldo-sub-icon">↑</span>
+      <div>
+        <div class="saldo-sub-label">Pemasukan</div>
+        <div class="saldo-sub-value">Rp {{ pemasukan | rupiah }}</div>
       </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <script>
-
-      const labels = {{ labels | tojson | safe }};
-      const values = {{ values | tojson | safe }};
-
-      const ctx = document.getElementById("kategoriChart");
-
-      new Chart(ctx, {
-
-          type: "doughnut",
-
-          data: {
-
-              labels: labels,
-
-              datasets: [{
-                  label: "Pengeluaran per Kategori",
-                  data: values,
-                  backgroundColor: [
-                      "#10B981",
-                      "#3B82F6",
-                      "#F59E0B",
-                      "#EF4444",
-                      "#8B5CF6",
-                      "#06B6D4",
-                      "#F97316"
-                  ]
-              }]
-          },
-
-          options: {
-              responsive: true,
-              plugins: {
-                  legend: {
-                      position: "bottom"
-                  }
-              }
-          }
-
-      });
-    </script>
-    <div class="bottom-nav">
-      <a href="/">
-        🏠
-        <span>Home</span>
-      </a>
-
-      <a href="/target">
-        🎯
-        <span>Target</span>
-      </a>
-
-      <a href="/budget">
-        💸
-        <span>Budget</span>
-      </a>
-
-      <a href="/tambah">
-        ➕
-        <span>Tambah</span>
-      </a>
+    <div class="saldo-divider"></div>
+    <div class="saldo-sub expense">
+      <span class="saldo-sub-icon">↓</span>
+      <div>
+        <div class="saldo-sub-label">Pengeluaran</div>
+        <div class="saldo-sub-value">Rp {{ pengeluaran | rupiah }}</div>
+      </div>
     </div>
-    <script>
-      const btn = document.getElementById("darkModeBtn");
+  </div>
+</div>
 
-      if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark");
+<div class="stats-grid">
+
+  <div class="stat-card">
+    <div class="stat-icon">📋</div>
+    <div class="stat-value">{{ total_transaksi }}</div>
+    <div class="stat-label">Transaksi</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">📈</div>
+    <div class="stat-value">{{ kategori_terbesar }}</div>
+    <div class="stat-label">Kategori Terbesar</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">💰</div>
+    <div class="stat-value">
+      Rp {{ rata_pengeluaran | rupiah }}
+    </div>
+    <div class="stat-label">Rata-rata Keluar</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">📅</div>
+    <div class="stat-value">{{ bulan_aktif }}</div>
+    <div class="stat-label">Bulan Aktif</div>
+  </div>
+
+</div>
+
+<div class="card insight-card">
+
+  <h2>💡 Insight Keuangan</h2>
+
+  <p>
+    📈 Pengeluaran terbesar:
+    <b>{{ kategori_terbesar[0] }}</b>
+    (Rp {{ kategori_terbesar[1] | rupiah }})
+  </p>
+
+  <p>
+    💸 Pengeluaran mencapai
+    <b>{{ persentase_pengeluaran | round(1) }}%</b>
+    dari pemasukan
+  </p>
+
+  {% if persentase_pengeluaran > 80 %}
+
+  <div class="warning-box">
+    ⚠ Pengeluaran sudah mendekati pemasukan.
+    Pertimbangkan mengurangi pengeluaran.
+  </div>
+
+  {% endif %}
+
+</div>
+
+<div class="quick-menu">
+  <a href="/export" class="quick-item"> <span>📊</span><span>Export</span> </a>
+  <a href="/backup" class="quick-item"> <span>💾</span><span>Backup</span> </a>
+  <a href="/kategori" class="quick-item">
+    <span>🏷️</span><span>Kategori</span>
+  </a>
+</div>
+
+{% if labels %}
+<div class="card">
+  <h2 class="card-title">📊 Pengeluaran per Kategori</h2>
+  <div class="chart-tabs">
+    <button class="chart-tab active" data-chart="donut">Donat</button>
+    <button class="chart-tab" data-chart="bar">Bulanan</button>
+  </div>
+  <div id="chart-donut"><canvas id="kategoriChart"></canvas></div>
+  <div id="chart-bar" style="display: none">
+    <canvas id="bulananChart"></canvas>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="filter-row">
+    <form method="GET" action="/" class="filter-form">
+      <input
+        type="month"
+        name="bulan"
+        value="{{ bulan_filter }}"
+        class="filter-input"
+      />
+     <select name="jenis" class="filter-input">
+        <option value="">Semua Jenis</option>
+
+        <option value="Pemasukan"
+          {% if jenis_filter == "Pemasukan" %}selected{% endif %}>
+          Pemasukan
+        </option>
+
+        <option value="Pengeluaran"
+          {% if jenis_filter == "Pengeluaran" %}selected{% endif %}>
+          Pengeluaran
+        </option>
+      </select>
+      <button type="submit" class="btn btn-sm">Filter</button>
+      {% if bulan_filter or jenis_filter %}
+      <a href="/" class="btn btn-sm btn-ghost">Reset</a>
+      {% endif %}
+    </form>
+  </div>
+
+  <h2 class="card-title">Riwayat Transaksi</h2>
+
+  {% if transaksi %} {% for t in transaksi %}
+  <div class="tx-card">
+    <div class="tx-left">
+      <div class="tx-cat">{{ t[3] }}</div>
+      <div class="tx-date">{{ t[1] }}</div>
+      {% if t[5] %}
+      <div class="tx-note">{{ t[5] }}</div>
+      {% endif %}
+    </div>
+    <div class="tx-right">
+      <div
+        class="tx-amount {% if t[2] == 'Pemasukan' %}income-text{% else %}expense-text{% endif %}"
+      >
+        {% if t[2] == 'Pemasukan' %}+{% else %}−{% endif %} Rp {{ t[4] | rupiah
+        }}
+      </div>
+      <div class="tx-actions">
+        <a href="/edit/{{ t[0] }}" class="tx-btn tx-btn--edit">✏️</a>
+        <a
+          href="/hapus/{{ t[0] }}"
+          class="tx-btn tx-btn--del"
+          onclick="return confirm('Hapus transaksi ini?');"
+          >🗑</a
+        >
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  
+  {% if total_page > 1 %}
+
+<div class="pagination">
+
+  {% if page > 1 %}
+  <a href="?page={{ page-1 }}&bulan={{ bulan_filter }}&jenis={{ jenis_filter }}">
+    ← Sebelumnya
+  </a>
+  {% endif %}
+
+  <span>
+    Halaman {{ page }} / {{ total_page }}
+  </span>
+
+  {% if page < total_page %}
+  <a href="?page={{ page+1 }}&bulan={{ bulan_filter }}&jenis={{ jenis_filter }}">
+    Berikutnya →
+  </a>
+  {% endif %}
+
+</div>
+
+{% endif %}
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>
+      Belum ada transaksi{% if bulan_filter or jenis_filter %} untuk filter
+      ini{% endif %}.
+    </p>
+    <a href="/tambah" class="btn">Tambah Sekarang</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const labels = {{ labels | tojson }};
+const values = {{ values| tojson}};
+const bulanLabels = {{ bulan_labels|tojson}};
+const bulanPemasukan = {{ bulan_pemasukan| tojson}};
+const bulanPengeluaran = {{ bulan_pengeluaran|tojson}};
+
+  const COLORS = ["#10B981","#3B82F6","#F59E0B","#EF4444","#8B5CF6","#06B6D4","#F97316","#EC4899"];
+
+  if (labels.length > 0) {
+    const ctx1 = document.getElementById("kategoriChart");
+    new Chart(ctx1, {
+      type: "doughnut",
+      data: { labels, datasets: [{ data: values, backgroundColor: COLORS }] },
+      options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+    });
+  }
+
+  if (bulanLabels.length > 0) {
+    const ctx2 = document.getElementById("bulananChart");
+    new Chart(ctx2, {
+      type: "bar",
+      data: {
+        labels: bulanLabels,
+        datasets: [
+          { label: "Pemasukan", data: bulanPemasukan, backgroundColor: "#10B981" },
+          { label: "Pengeluaran", data: bulanPengeluaran, backgroundColor: "#EF4444" }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { position: "bottom" } },
+        scales: { y: { beginAtZero: true } }
       }
+    });
+  }
 
-      btn.addEventListener("click", () => {
-        document.body.classList.toggle("dark");
-
-        localStorage.setItem(
-          "darkMode",
-          document.body.classList.contains("dark"),
-        );
-      });
-    </script>
-  </body>
-</html>
+  document.querySelectorAll(".chart-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".chart-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("chart-donut").style.display = tab.dataset.chart === "donut" ? "" : "none";
+      document.getElementById("chart-bar").style.display = tab.dataset.chart === "bar" ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

@@ -1,60 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Kelola Kategori</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static',
-          filename='css/style.css') }}">
-</head>
-<body>
-
-<div class="container">
-
-    <div class="card">
-
-        <h1>📂 Kelola Kategori</h1>
-
-        <form method="POST">
-
-            <input
-                type="text"
-                name="nama"
-                placeholder="Nama Kategori"
-                required>
-
-            <button class="btn">
-                Tambah
-            </button>
-
-        </form>
-
-    </div>
-
-    <div class="card">
-
-        <h2>Daftar Kategori</h2>
-
-        {% for k in kategori %}
-
-        <p>
-
-            {{ k[1] }}
-
-            <a href="/hapus-kategori/{{ k[0] }}"
-               class="delete-btn">
-
-                Hapus
-
-            </a>
-
-        </p>
-
-        {% endfor %}
-
-    </div>
-
+{% extends "base.html" %}
+{% block title %}Kelola Kategori — DompetQu{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="/" class="back-btn">← Kembali</a>
+  <h1>🏷️ Kelola Kategori</h1>
 </div>
 
-</body>
-</html>
+<div class="card">
+  <form method="POST" class="inline-form">
+    <input type="text" name="nama" placeholder="Nama kategori baru..." required>
+    <button class="btn">Tambah</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 class="card-title">Daftar Kategori</h2>
+  {% if kategori %}
+    <div class="kat-list">
+      {% for k in kategori %}
+      <div class="kat-item">
+        <span class="kat-name">{{ k[1] }}</span>
+        <a href="/hapus-kategori/{{ k[0] }}" class="tx-btn tx-btn--del"
+           onclick="return confirm('Hapus kategori {{ k[1] }}?')">🗑</a>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🏷️</div>
+      <p>Belum ada kategori.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

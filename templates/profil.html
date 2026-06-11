@@ -1,52 +1,49 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Profil</title>
+{% extends "base.html" %}
+{% block title %}Profil — DompetQu{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="/" class="back-btn">← Kembali</a>
+  <h1>👤 Profil</h1>
+</div>
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
+<div class="card">
+  <div class="profil-info">
+    <div class="profil-avatar">{{ username[0] | upper }}</div>
+    <div class="profil-username">{{ username }}</div>
+  </div>
+</div>
 
-  <body>
-    <div class="container">
-      <div class="card">
-        <h1>👤 Profil</h1>
-
-        <p>
-          Username :
-          <b>{{ username }}</b>
-        </p>
-
-        {% if pesan %}
-
-        <p style="color: green">{{ pesan }}</p>
-
-        {% endif %}
-
-        <form method="POST">
-          <label>Password Lama</label>
-          <br />
-
-          <input type="password" name="password_lama" required />
-
-          <br /><br />
-
-          <label>Password Baru</label>
-          <br />
-
-          <input type="password" name="password_baru" required />
-
-          <br /><br />
-
-          <button class="btn">Simpan</button>
-        </form>
-
-        <br />
-
-        <a href="/" class="btn"> Kembali </a>
-      </div>
+<div class="card">
+  <h2 class="card-title">🔐 Ganti Password</h2>
+  {% if pesan %}
+    <div class="alert {% if 'berhasil' in pesan %}alert-success{% else %}alert-danger{% endif %}">
+      {{ pesan }}
     </div>
-  </body>
-</html>
+  {% endif %}
+  <form method="POST">
+    <div class="form-group">
+      <label>Password Lama</label>
+      <input type="password" name="password_lama" required>
+    </div>
+    <div class="form-group">
+      <label>Password Baru</label>
+      <input type="password" name="password_baru" required minlength="4">
+    </div>
+    <button class="btn btn-full">Simpan Password</button>
+  </form>
+</div>
+
+<div class="card">
+  <h2 class="card-title">📦 Data & Backup</h2>
+  <div class="action-list">
+    <a href="/export" class="action-item">📊 Export Excel</a>
+    <a href="/backup" class="action-item">💾 Backup JSON</a>
+    <a href="/restore" class="action-item">📥 Restore Data</a>
+    <a href="/kategori" class="action-item">🏷️ Kelola Kategori</a>
+  </div>
+</div>
+
+<div class="card">
+  <a href="/logout" class="btn btn-full btn-danger">⎋ Logout</a>
+</div>
+{% endblock %}

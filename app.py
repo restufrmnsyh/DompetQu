@@ -6,11 +6,15 @@ from routes.transaksi import transaksi
 from routes.auth import auth
 from routes.kategori import kategori
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 from database.db import init_db
 
 app = Flask(__name__)
-
-app.secret_key = "dompetku123"
+app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "default_secret_key")
 
 app.register_blueprint(transaksi)
 app.register_blueprint(laporan)
@@ -23,7 +27,15 @@ init_db()
 
 @app.template_filter("rupiah")
 def rupiah(angka):
-    return "{:,.0f}".format(float(angka)).replace(",", ".")
+    try:
+        return "{:,.0f}".format(float(angka)).replace(",", ".")
+    except (ValueError, TypeError):
+        return "0"
+
+
+@app.template_filter("min")
+def filter_min(lst):
+    return min(lst)
 
 
 if __name__ == "__main__":

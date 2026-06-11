@@ -1,73 +1,58 @@
-<!doctype html>
-<html>
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Budget Bulanan</title>
+{% extends "base.html" %}
+{% block title %}Budget Bulanan — DompetQu{% endblock %}
+{% block content %}
+<div class="page-header">
+  <a href="/" class="back-btn">← Kembali</a>
+  <h1>💸 Budget Bulanan</h1>
+</div>
 
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
-  <body>
-    <div class="container">
-      <div class="card">
-        <h1>💸 Budget Bulanan</h1>
-
-        <form method="POST">
-          <label>Bulan</label>
-          <br />
-          <input type="text" name="bulan" placeholder="Juni 2026" required />
-          <br /><br />
-
-          <label>Jumlah Budget</label>
-          <br />
-          <input type="number" name="jumlah_budget" required />
-          <br /><br />
-
-          <button class="btn">Simpan</button>
-
-          <a href="/" class="btn"> Dashboard </a>
-        </form>
-      </div>
-
-      {% if budget %}
-
-      <div class="card">
-        <h2>{{ budget[1] }}</h2>
-
-        <p>Budget : Rp {{ budget[2] | rupiah }}</p>
-
-        <p>Terpakai : Rp {{ pengeluaran | rupiah }}</p>
-
-        <p>Sisa : Rp {{ (budget[2] - pengeluaran) | rupiah }}</p>
-
-        {% if pengeluaran > budget[2] %}
-
-        <p style="color: red">⚠ Budget Terlampaui</p>
-
-        {% endif %}
-      </div>
-
-      {% endif %}
+<div class="card">
+  <form method="POST">
+    <div class="form-group">
+      <label>Bulan</label>
+      <input type="month" name="bulan" value="{{ budget[1] if budget else '' }}" required>
     </div>
+    <div class="form-group">
+      <label>Jumlah Budget (Rp)</label>
+      <input type="number" name="jumlah_budget" value="{{ budget[2] if budget else '' }}" min="0" required>
+    </div>
+    <button class="btn btn-full">Simpan Budget</button>
+  </form>
+</div>
 
-    {% if budget %}
-
-    <hr />
-
-    <h3>Status Budget</h3>
-
-    <p>Terpakai: {{ persentase|round(1) }}%</p>
-
-    {% if status == "warning" %}
-
-    <div class="warning-box">⚠ Budget sudah terpakai lebih dari 80%</div>
-
-    {% endif %} {% if status == "over" %}
-
-    <div class="danger-box">🚨 Budget sudah terlampaui!</div>
-
-    {% endif %} {% endif %}
-  </body>
-</html>
+{% if budget %}
+<div class="card">
+  <h2 class="card-title">📈 Status Budget — {{ budget[1] }}</h2>
+  <div class="budget-stats">
+    <div class="budget-stat">
+      <div class="budget-stat-label">Budget</div>
+      <div class="budget-stat-value">Rp {{ budget[2] | rupiah }}</div>
+    </div>
+    <div class="budget-stat">
+      <div class="budget-stat-label">Terpakai</div>
+      <div class="budget-stat-value expense">Rp {{ pengeluaran | rupiah }}</div>
+    </div>
+    <div class="budget-stat">
+      <div class="budget-stat-label">Sisa</div>
+      <div class="budget-stat-value {% if budget[2] - pengeluaran < 0 %}expense{% else %}income{% endif %}">
+        Rp {{ (budget[2] - pengeluaran) | rupiah }}
+      </div>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-fill {% if status == 'over' %}progress-over{% elif status == 'warning' %}progress-warning{% endif %}"
+           style="width: {{ [persentase, 100] | min }}%;"></div>
+    </div>
+    <div class="progress-label">{{ persentase | round(1) }}% terpakai</div>
+  </div>
+  {% if status == "warning" %}
+  <div class="alert alert-warning">⚠️ Budget sudah terpakai lebih dari 80%. Hati-hati!</div>
+  {% elif status == "over" %}
+  <div class="alert alert-danger">🚨 Budget bulan ini sudah terlampaui!</div>
+  {% else %}
+  <div class="alert alert-success">✅ Budget masih aman.</div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

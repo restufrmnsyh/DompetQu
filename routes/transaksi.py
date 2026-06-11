@@ -1,50 +1,67 @@
-from flask import (
-    Blueprint,
-    render_template,
-    request,
-    redirect
-)
-
+from flask import Blueprint, render_template, request, redirect, session
 from database.db import (
-    ambil_semua_transaksi,
-    hitung_saldo,
-    tambah_transaksi,
-    hapus_transaksi,
-    hitung_ringkasan,
-    ambil_pengeluaran_per_kategori,
-    ambil_kategori
+    ambil_semua_transaksi, hitung_saldo, tambah_transaksi, hapus_transaksi,
+    hitung_ringkasan, ambil_pengeluaran_per_kategori, ambil_kategori,
+    ambil_ringkasan_bulanan, edit_transaksi, ambil_transaksi_by_id, ambil_statistik_dashboard, ambil_insight
 )
+from datetime import datetime
 
-from flask import session
+transaksi = Blueprint("transaksi", __name__)
 
-transaksi = Blueprint(
-    "transaksi",
-    __name__
-)
 
 @transaksi.route("/")
 def dashboard():
     if "login" not in session:
         return redirect("/login")
 
-    transaksi_data = ambil_semua_transaksi()
+    bulan_filter = request.args.get("bulan", "")
+    jenis_filter = request.args.get("jenis", "")
+    page = int(
+        request.args.get("page", 1)
+    )
 
-    saldo = hitung_saldo()
+    semua_transaksi = ambil_semua_transaksi(
+        bulan=bulan_filter or None,
+        jenis=jenis_filter or None
+    )
 
-    pemasukan, pengeluaran = hitung_ringkasan()
+    per_page = 10
+    start = (page - 1) * per_page
+    end = start + per_page
+    transaksi_data = semua_transaksi[start:end]
 
-    kategori_data = ambil_pengeluaran_per_kategori()
+    total_data = len(semua_transaksi)
+    total_page = (
+        total_data + per_page - 1
+    ) // per_page
 
-    labels = []
-    values = []
+    saldo = hitung_saldo(
+        bulan=bulan_filter or None
+    )
+    pemasukan, pengeluaran = hitung_ringkasan(bulan=bulan_filter or None)
+    kategori_data = ambil_pengeluaran_per_kategori(bulan=bulan_filter or None)
+    ringkasan_bulanan = ambil_ringkasan_bulanan()
 
-    for item in kategori_data:
+    labels = [item[0] for item in kategori_data]
+    values = [item[1] for item in kategori_data]
 
-        labels.append(item[0])
-        values.append(item[1])
+    bulan_labels = [item[0] for item in reversed(ringkasan_bulanan)]
+    bulan_pemasukan = [item[1] for item in reversed(ringkasan_bulanan)]
+    bulan_pengeluaran = [item[2] for item in reversed(ringkasan_bulanan)]
 
-    print("LABELS =", labels)
-    print("VALUES =", values)
+    bulan_ini = datetime.now().strftime("%Y-%m")
+
+    (
+    total_transaksi,
+    kategori_terbesar,
+    rata_pengeluaran,
+    bulan_aktif
+    ) = ambil_statistik_dashboard()
+
+    (
+    kategori_terbesar,
+    persentase_pengeluaran
+    ) = ambil_insight()
     return render_template(
         "dashboard.html",
         transaksi=transaksi_data,
@@ -52,48 +69,66 @@ def dashboard():
         pemasukan=pemasukan,
         pengeluaran=pengeluaran,
         labels=labels,
-        values=values
+        values=values,
+        bulan_labels=bulan_labels,
+        bulan_pemasukan=bulan_pemasukan,
+        bulan_pengeluaran=bulan_pengeluaran,
+        bulan_filter=bulan_filter,
+        jenis_filter=jenis_filter,
+        bulan_ini=bulan_ini,
+        total_transaksi=total_transaksi,
+        kategori_terbesar=kategori_terbesar,
+        rata_pengeluaran=rata_pengeluaran,
+        bulan_aktif=bulan_aktif,
+        page=page,
+        total_page=total_page,
+        persentase_pengeluaran=persentase_pengeluaran,
     )
+
 
 @transaksi.route("/tambah", methods=["GET", "POST"])
 def tambah():
-
     if "login" not in session:
         return redirect("/login")
 
     if request.method == "POST":
-
         tanggal = request.form["tanggal"]
-
         jenis = request.form["jenis"]
-
         kategori = request.form["kategori"]
-
         nominal = int(request.form["nominal"])
-
-        catatan = request.form["catatan"]
-
-        tambah_transaksi(
-            tanggal,
-            jenis,
-            kategori,
-            nominal,
-            catatan
-        )
-
+        catatan = request.form.get("catatan", "")
+        tambah_transaksi(tanggal, jenis, kategori, nominal, catatan)
         return redirect("/")
+
     kategori = ambil_kategori()
-    return render_template(
-        "tambah.html", 
-        kategori=kategori
-    )
+    today = datetime.now().strftime("%Y-%m-%d")
+    return render_template("tambah.html", kategori=kategori, today=today)
 
-@transaksi.route("/hapus/<int:id>")
-def hapus(id):
 
+@transaksi.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit(id):
     if "login" not in session:
         return redirect("/login")
 
-    hapus_transaksi(id)
+    if request.method == "POST":
+        tanggal = request.form["tanggal"]
+        jenis = request.form["jenis"]
+        kategori = request.form["kategori"]
+        nominal = int(request.form["nominal"])
+        catatan = request.form.get("catatan", "")
+        edit_transaksi(id, tanggal, jenis, kategori, nominal, catatan)
+        return redirect("/")
 
+    data = ambil_transaksi_by_id(id)
+    if not data:
+        return redirect("/")
+    kategori = ambil_kategori()
+    return render_template("edit.html", t=data, kategori=kategori)
+
+
+@transaksi.route("/hapus/<int:id>")
+def hapus(id):
+    if "login" not in session:
+        return redirect("/login")
+    hapus_transaksi(id)
     return redirect("/")

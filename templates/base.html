@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}DompetQu{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+{% if session.login %}
+<nav class="top-nav">
+  <a href="/" class="nav-brand">💰 DompetQu</a>
+  <div class="nav-right">
+    <button id="darkModeBtn" class="btn-icon" title="Dark Mode">🌙</button>
+    <a href="/profil" class="btn-icon" title="Profil">👤</a>
+    <a href="/logout" class="btn-icon btn-icon--danger" title="Logout">⎋</a>
+  </div>
+</nav>
+{% endif %}
+
+<div class="app-container">
+  {% block content %}{% endblock %}
+</div>
+
+{% if session.login %}
+<nav class="bottom-nav">
+  <a href="/" class="{% if request.path == '/' %}active{% endif %}">
+    <span class="nav-icon">🏠</span>
+    <span>Home</span>
+  </a>
+  <a href="/tambah" class="{% if request.path == '/tambah' %}active{% endif %}">
+    <span class="nav-icon">➕</span>
+    <span>Tambah</span>
+  </a>
+  <a href="/budget" class="{% if request.path == '/budget' %}active{% endif %}">
+    <span class="nav-icon">💸</span>
+    <span>Budget</span>
+  </a>
+  <a href="/target" class="{% if request.path == '/target' %}active{% endif %}">
+    <span class="nav-icon">🎯</span>
+    <span>Target</span>
+  </a>
+</nav>
+{% endif %}
+
+<script>
+  const btn = document.getElementById("darkModeBtn");
+  if (localStorage.getItem("darkMode") === "true") {
+    document.body.classList.add("dark");
+  }
+  if (btn) {
+    btn.addEventListener("click", () => {
+      document.body.classList.toggle("dark");
+      localStorage.setItem("darkMode", document.body.classList.contains("dark"));
+    });
+  }
+</script>
+
+{% block scripts %}{% endblock %}
+</body>
+</html>
