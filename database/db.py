@@ -21,6 +21,20 @@ def init_db():
     )
     """)
 
+    try:
+        cursor.execute("""
+        ALTER TABLE transaksi
+        ADD COLUMN user_id INTEGER
+        """)
+    except:
+        pass
+
+    cursor.execute("""
+        UPDATE transaksi
+        SET user_id = 1
+        WHERE user_id IS NULL
+    """)
+
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS target_tabungan (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,13 +88,29 @@ def init_db():
     conn.close()
 
 
-def tambah_transaksi(tanggal, jenis, kategori, nominal, catatan):
+def tambah_transaksi(user_id, tanggal, jenis, kategori, nominal, catatan):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
-    INSERT INTO transaksi (tanggal, jenis, kategori, nominal, catatan)
-    VALUES (?, ?, ?, ?, ?)
-    """, (tanggal, jenis, kategori, nominal, catatan))
+    INSERT INTO transaksi (
+        user_id,
+        tanggal,
+        jenis,
+        kategori,
+        nominal,
+        catatan
+    )
+    VALUES (?, ?, ?, ?, ?, ?)
+    """, (
+        user_id,
+        tanggal,
+        jenis,
+        kategori,
+        nominal,
+        catatan
+    ))
+
     conn.commit()
     conn.close()
 
@@ -105,23 +135,36 @@ def ambil_transaksi_by_id(id):
     return data
 
 
-def ambil_semua_transaksi(bulan=None, jenis=None):
+def ambil_semua_transaksi(user_id, bulan=None, jenis=None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query = "SELECT * FROM transaksi WHERE 1=1"
-    params = []
+
+    query = """
+    SELECT *
+    FROM transaksi
+    WHERE user_id = ?
+    """
+
+    params = [user_id]
+
     if bulan:
-        query += " AND strftime('%Y-%m', tanggal) = ?"
+        query += """
+        AND strftime('%Y-%m', tanggal) = ?
+        """
         params.append(bulan)
+        
     if jenis:
-        query += " AND jenis = ?"
+        query += """
+        AND jenis = ?
+        """
         params.append(jenis)
-    query += " ORDER BY tanggal DESC, id DESC"
+    query += """
+    ORDER BY tanggal DESC, id DESC
+    """
     cursor.execute(query, params)
     data = cursor.fetchall()
     conn.close()
     return data
-
 
 def hitung_saldo():
     conn = sqlite3.connect(DB_PATH)
@@ -146,26 +189,42 @@ def hapus_transaksi(id):
     conn.close()
 
 
-def hitung_ringkasan(bulan=None):
+def hitung_ringkasan(user_id, bulan=None):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    query = "SELECT jenis, nominal FROM transaksi WHERE 1=1"
-    params = []
+
+    query = """
+    SELECT jenis, nominal
+    FROM transaksi
+    WHERE user_id = ?
+    """
+
+    params = [user_id]
+
     if bulan:
-        query += " AND strftime('%Y-%m', tanggal) = ?"
+        query += """
+        AND strftime('%Y-%m', tanggal) = ?
+        """
         params.append(bulan)
+
     cursor.execute(query, params)
+
     data = cursor.fetchall()
+
     conn.close()
+
     pemasukan = 0
     pengeluaran = 0
+
     for jenis, nominal in data:
+
         if jenis == "Pemasukan":
             pemasukan += nominal
+
         elif jenis == "Pengeluaran":
             pengeluaran += nominal
     return pemasukan, pengeluaran
-
 
 def ambil_target():
     conn = sqlite3.connect(DB_PATH)
@@ -215,52 +274,101 @@ def ambil_budget(bulan=None):
     return data
 
 
-def ambil_pengeluaran_per_kategori(bulan=None):
+def ambil_pengeluaran_per_kategori(user_id, bulan=None):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     query = """
     SELECT kategori, SUM(nominal)
     FROM transaksi
     WHERE jenis = 'Pengeluaran'
+    AND user_id = ?
     """
-    params = []
+
+    params = [user_id]
+
     if bulan:
-        query += " AND strftime('%Y-%m', tanggal) = ?"
+        query += """
+        AND strftime('%Y-%m', tanggal) = ?
+        """
         params.append(bulan)
-    query += " GROUP BY kategori"
+
+    query += """
+    GROUP BY kategori
+    """
+
     cursor.execute(query, params)
     data = cursor.fetchall()
     conn.close()
+
     return data
 
 
-def ambil_ringkasan_bulanan():
+def ambil_ringkasan_bulanan(user_id):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
     SELECT strftime('%Y-%m', tanggal) as bulan,
-           SUM(CASE WHEN jenis='Pemasukan' THEN nominal ELSE 0 END) as pemasukan,
-           SUM(CASE WHEN jenis='Pengeluaran' THEN nominal ELSE 0 END) as pengeluaran
+           SUM(
+               CASE
+               WHEN jenis='Pemasukan'
+               THEN nominal
+               ELSE 0
+               END
+           ) as pemasukan,
+           SUM(
+               CASE
+               WHEN jenis='Pengeluaran'
+               THEN nominal
+               ELSE 0
+               END
+           ) as pengeluaran
     FROM transaksi
+    WHERE user_id = ?
     GROUP BY bulan
     ORDER BY bulan DESC
     LIMIT 6
-    """)
+    """, (user_id,))
     data = cursor.fetchall()
+
     conn.close()
     return data
 
 
-def restore_transaksi(data):
+def restore_transaksi(user_id, data):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM transaksi")
+
+    cursor.execute("""
+    DELETE FROM transaksi
+    WHERE user_id = ?
+    """, (user_id,))
+
     for item in data:
+
         cursor.execute("""
-        INSERT INTO transaksi (tanggal, jenis, kategori, nominal, catatan)
-        VALUES (?, ?, ?, ?, ?)
-        """, (item["tanggal"], item["jenis"], item["kategori"],
-              item["nominal"], item["catatan"]))
+        INSERT INTO transaksi (
+            user_id,
+            tanggal,
+            jenis,
+            kategori,
+            nominal,
+            catatan
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, (
+            user_id,
+            item["tanggal"],
+            item["jenis"],
+            item["kategori"],
+            item["nominal"],
+            item["catatan"]
+        ))
+
     conn.commit()
     conn.close()
 
@@ -316,19 +424,16 @@ def hapus_kategori(id):
     conn.commit()
     conn.close()
 
-def hitung_saldo(bulan=None):
+def hitung_saldo(user_id):
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    query = "SELECT jenis, nominal FROM transaksi WHERE 1=1"
-    params = []
-
-    if bulan:
-        query += " AND strftime('%Y-%m', tanggal)=?"
-        params.append(bulan)
-
-    cursor.execute(query, params)
+    cursor.execute("""
+    SELECT jenis, nominal
+    FROM transaksi
+    WHERE user_id = ?
+    """, (user_id,))
 
     data = cursor.fetchall()
 
@@ -379,7 +484,7 @@ def ambil_kategori_by_id(id):
 
     return data
 
-def ambil_statistik_dashboard():
+def ambil_statistik_dashboard(user_id):
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -388,7 +493,9 @@ def ambil_statistik_dashboard():
     cursor.execute("""
     SELECT COUNT(*)
     FROM transaksi
-    """)
+    WHERE user_id = ?
+    """, (user_id,))
+
     total_transaksi = cursor.fetchone()[0]
 
     # Kategori terbesar
@@ -397,10 +504,11 @@ def ambil_statistik_dashboard():
            SUM(nominal) as total
     FROM transaksi
     WHERE jenis='Pengeluaran'
+    AND user_id = ?
     GROUP BY kategori
     ORDER BY total DESC
     LIMIT 1
-    """)
+    """, (user_id,))
 
     kategori = cursor.fetchone()
 
@@ -411,7 +519,8 @@ def ambil_statistik_dashboard():
     SELECT AVG(nominal)
     FROM transaksi
     WHERE jenis='Pengeluaran'
-    """)
+    AND user_id = ?
+    """, (user_id,))
 
     rata_pengeluaran = cursor.fetchone()[0] or 0
 
@@ -419,7 +528,8 @@ def ambil_statistik_dashboard():
     cursor.execute("""
     SELECT COUNT(DISTINCT strftime('%Y-%m', tanggal))
     FROM transaksi
-    """)
+    WHERE user_id = ?
+    """, (user_id,))
 
     bulan_aktif = cursor.fetchone()[0]
 
@@ -432,9 +542,9 @@ def ambil_statistik_dashboard():
         bulan_aktif
     )
 
-def ambil_insight():
+def ambil_insight(user_id):
 
-    kategori_data = ambil_pengeluaran_per_kategori()
+    kategori_data = ambil_pengeluaran_per_kategori(user_id)
 
     if kategori_data:
 
@@ -450,7 +560,7 @@ def ambil_insight():
             0
         )
 
-    pemasukan, pengeluaran = hitung_ringkasan()
+    pemasukan, pengeluaran = hitung_ringkasan(user_id)
 
     persentase = 0
 
@@ -466,14 +576,39 @@ def ambil_insight():
         persentase
     )
 
-def reset_transaksi():
-
+def reset_transaksi(user_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
     DELETE FROM transaksi
-    """)
+    WHERE user_id = ?
+    """, (user_id,))
 
     conn.commit()
     conn.close()
+
+def tambah_user(username, password):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("""
+        INSERT INTO users (
+            username,
+            password
+        )
+        VALUES (?, ?)
+        """, (
+            username,
+            hash_password(password)
+        ))
+
+        conn.commit()
+        berhasil = True
+
+    except:
+        berhasil = False
+
+    conn.close()
+    return berhasil

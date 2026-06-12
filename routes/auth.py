@@ -8,7 +8,8 @@ from flask import (
 
 from database.db import (
     cek_login,
-    ganti_password
+    ganti_password,
+    tambah_user
 )
 
 auth = Blueprint(
@@ -34,7 +35,8 @@ def login():
         if user:
 
             session["login"] = True
-            session["username"] = username
+            session["user_id"] = user[0]
+            session["username"] = user[1]
 
             return redirect("/")
 
@@ -44,6 +46,34 @@ def login():
 
     return render_template(
         "login.html",
+        pesan=pesan
+    )
+
+@auth.route("/register", methods=["GET", "POST"])
+def register():
+
+    pesan = ""
+
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        berhasil = tambah_user(
+            username,
+            password
+        )
+
+        if berhasil:
+
+            return redirect("/login")
+
+        else:
+
+            pesan = "Username sudah digunakan"
+
+    return render_template(
+        "register.html",
         pesan=pesan
     )
 

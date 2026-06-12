@@ -21,6 +21,7 @@ def dashboard():
     )
 
     semua_transaksi = ambil_semua_transaksi(
+        session["user_id"],
         bulan=bulan_filter or None,
         jenis=jenis_filter or None
     )
@@ -36,11 +37,11 @@ def dashboard():
     ) // per_page
 
     saldo = hitung_saldo(
-        bulan=bulan_filter or None
+        session["user_id"]
     )
-    pemasukan, pengeluaran = hitung_ringkasan(bulan=bulan_filter or None)
-    kategori_data = ambil_pengeluaran_per_kategori(bulan=bulan_filter or None)
-    ringkasan_bulanan = ambil_ringkasan_bulanan()
+    pemasukan, pengeluaran = hitung_ringkasan(session["user_id"], bulan=bulan_filter or None)
+    kategori_data = ambil_pengeluaran_per_kategori( session["user_id"], bulan=bulan_filter or None)
+    ringkasan_bulanan = ambil_ringkasan_bulanan(session["user_id"])
 
     labels = [item[0] for item in kategori_data]
     values = [item[1] for item in kategori_data]
@@ -56,12 +57,12 @@ def dashboard():
         kategori_terbesar,
         rata_pengeluaran,
         bulan_aktif
-    ) = ambil_statistik_dashboard()
+    ) = ambil_statistik_dashboard(session["user_id"])
 
     (
         kategori_terbesar,
         persentase_pengeluaran
-    ) = ambil_insight()
+    ) = ambil_insight(session["user_id"])
     return render_template(
         "dashboard.html",
         transaksi=transaksi_data,
@@ -97,7 +98,7 @@ def tambah():
         kategori = request.form["kategori"]
         nominal = int(request.form["nominal"])
         catatan = request.form.get("catatan", "")
-        tambah_transaksi(tanggal, jenis, kategori, nominal, catatan)
+        tambah_transaksi(session["user_id"], tanggal, jenis, kategori, nominal, catatan)
         return redirect("/")
 
     kategori = ambil_kategori()

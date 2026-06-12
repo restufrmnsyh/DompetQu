@@ -20,9 +20,9 @@ def export_excel():
     if "login" not in session:
         return redirect("/login")
 
-    transaksi = ambil_semua_transaksi()
+    transaksi = ambil_semua_transaksi(session["user_id"])
 
-    pemasukan, pengeluaran = hitung_ringkasan()
+    pemasukan, pengeluaran = hitung_ringkasan(session["user_id"])
     saldo = hitung_saldo()
 
     wb = Workbook()
@@ -75,7 +75,7 @@ def backup():
     conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM transaksi")
+    cursor.execute("SELECT * FROM transaksi WHERE user_id = ?", (session["user_id"],))
     data = [dict(row) for row in cursor.fetchall()]
     conn.close()
 
@@ -100,7 +100,7 @@ def restore():
         if file:
             try:
                 data = json.load(file)
-                restore_transaksi(data)
+                restore_transaksi(session["user_id"], data)
                 return redirect("/")
             except Exception as e:
                 pesan = f"Gagal restore: {str(e)}"
@@ -113,7 +113,7 @@ def reset():
     if "login" not in session:
         return redirect("/login")
 
-    reset_transaksi()
+    reset_transaksi(session["user_id"])
 
     flash("Semua transaksi berhasil dihapus")
 

@@ -47,7 +47,7 @@ def budget():
     if not data_budget:
         data_budget = ambil_budget()
 
-    _, pengeluaran = hitung_ringkasan(bulan=bulan_ini)
+    _, pengeluaran = hitung_ringkasan(session["user_id"], bulan=bulan_ini)
 
     persentase = 0
     status = ""

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+  <h2>Daftar Akun</h2>
+
+  {% if pesan %}
+  <p>{{ pesan }}</p>
+  {% endif %}
+
+  <form method="POST">
+
+    <input
+      type="text"
+      name="username"
+      placeholder="Username"
+      required>
+
+    <br><br>
+
+    <input
+      type="password"
+      name="password"
+      placeholder="Password"
+      required>
+
+    <br><br>
+
+    <button class="btn">
+      Daftar
+    </button>
+
+  </form>
+
+</div>
+
+{% endblock %}
