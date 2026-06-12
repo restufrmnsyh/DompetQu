@@ -1,5 +1,11 @@
 {% extends "base.html" %} {% block title %}Dashboard — DompetQu{% endblock %} {%
 block content %}
+
+<div class="welcome-banner">
+  <h2>Halo, {{ session.username }} 👋</h2>
+  <p>Selamat datang kembali di DompetQu</p>
+</div>
+
 <div class="saldo-card">
   <div class="saldo-label">Saldo Saat Ini</div>
   <div class="saldo-amount {% if saldo < 0 %}saldo-minus{% endif %}">
@@ -27,29 +33,43 @@ block content %}
 <div class="stats-grid">
 
   <div class="stat-card">
-    <div class="stat-icon">📋</div>
-    <div class="stat-value">{{ total_transaksi }}</div>
-    <div class="stat-label">Transaksi</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-icon">📈</div>
-    <div class="stat-value">{{ kategori_terbesar }}</div>
-    <div class="stat-label">Kategori Terbesar</div>
-  </div>
-
-  <div class="stat-card">
-    <div class="stat-icon">💰</div>
-    <div class="stat-value">
-      Rp {{ rata_pengeluaran | rupiah }}
+    <div class="stat-icon">📄</div>
+    <div class="stat-content">
+      <div class="stat-value">{{ total_transaksi }}</div>
+      <div class="stat-label">Total Transaksi</div>
     </div>
-    <div class="stat-label">Rata-rata Keluar</div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">🏷️</div>
+    <div class="stat-content">
+      <div class="stat-value">{{ kategori_terbesar }}</div>
+      <div class="stat-label">Kategori Terbesar</div>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div class="stat-icon">💸</div>
+    <div class="stat-content">
+      <div class="stat-value">
+        Rp {{ rata_pengeluaran | rupiah }}
+      </div>
+      <div class="stat-label">
+        Rata-rata Pengeluaran
+      </div>
+    </div>
   </div>
 
   <div class="stat-card">
     <div class="stat-icon">📅</div>
-    <div class="stat-value">{{ bulan_aktif }}</div>
-    <div class="stat-label">Bulan Aktif</div>
+    <div class="stat-content">
+      <div class="stat-value">
+        {{ bulan_aktif }}
+      </div>
+      <div class="stat-label">
+        Bulan Aktif
+      </div>
+    </div>
   </div>
 
 </div>
@@ -196,13 +216,17 @@ block content %}
 
   {% else %}
   <div class="empty-state">
-    <div class="empty-icon">📭</div>
-    <p>
-      Belum ada transaksi{% if bulan_filter or jenis_filter %} untuk filter
-      ini{% endif %}.
-    </p>
-    <a href="/tambah" class="btn">Tambah Sekarang</a>
-  </div>
+  <div class="empty-icon">💰</div>
+  <h3>Belum Ada Transaksi</h3>
+  <p>
+    Mulai catat pemasukan dan pengeluaran pertamamu
+    untuk melihat statistik keuangan.
+  </p>
+
+  <a href="/tambah" class="btn">
+    ➕ Tambah Transaksi
+  </a>
+</div>
   {% endif %}
 </div>
 {% endblock %} {% block scripts %}

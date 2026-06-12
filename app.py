@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, session
 
 from routes.laporan import laporan
 from routes.keuangan import keuangan
@@ -37,6 +37,11 @@ def rupiah(angka):
 def filter_min(lst):
     return min(lst)
 
+@app.context_processor
+def inject_user():
+    return {
+        "current_user": session.get("username")
+    }
 
 if __name__ == "__main__":
     app.run(debug=True)

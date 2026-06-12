@@ -23,7 +23,7 @@ def export_excel():
     transaksi = ambil_semua_transaksi(session["user_id"])
 
     pemasukan, pengeluaran = hitung_ringkasan(session["user_id"])
-    saldo = hitung_saldo()
+    saldo = hitung_saldo(session["user_id"])
 
     wb = Workbook()
     ws = wb.active

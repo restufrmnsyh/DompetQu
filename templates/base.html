@@ -10,15 +10,49 @@
 <body>
 
 {% if session.login %}
+
 <nav class="top-nav">
-  <a href="/" class="nav-brand">💰 DompetQu</a>
-  <div class="nav-right">
-    <button id="darkModeBtn" class="btn-icon" title="Dark Mode">🌙</button>
-    <a href="/profil" class="btn-icon" title="Profil">👤</a>
-    <a href="/logout" class="btn-icon btn-icon--danger" title="Logout">⎋</a>
+
+  <div class="nav-left">
+    <a href="/" class="nav-brand">
+      💰 DompetQu
+    </a>
+
+
+<div class="nav-subtitle">
+  Kelola keuanganmu dengan lebih cerdas
+</div>
+
   </div>
+
+  <div class="nav-right">
+
+<button
+  id="darkModeBtn"
+  class="btn-icon"
+  title="Dark Mode">
+  🌙
+</button>
+
+<a
+  href="/profil"
+  class="btn-icon"
+  title="Profil">
+  👤
+</a>
+
+<a
+  href="/logout"
+  class="btn-icon btn-icon--danger"
+  title="Logout">
+  ⎋
+</a>
+
+  </div>
+
 </nav>
 {% endif %}
+
 
 <div class="app-container">
   {% block content %}{% endblock %}

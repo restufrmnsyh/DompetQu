@@ -166,21 +166,6 @@ def ambil_semua_transaksi(user_id, bulan=None, jenis=None):
     conn.close()
     return data
 
-def hitung_saldo():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT jenis, nominal FROM transaksi")
-    data = cursor.fetchall()
-    conn.close()
-    saldo = 0
-    for jenis, nominal in data:
-        if jenis == "Pemasukan":
-            saldo += nominal
-        else:
-            saldo -= nominal
-    return saldo
-
-
 def hapus_transaksi(id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
