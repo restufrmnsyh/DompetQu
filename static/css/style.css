@@ -307,7 +307,7 @@ h1, h2, h3 { margin: 0 0 8px; }
 .tx-btn:hover { background: var(--border); }
 .tx-btn--del:hover { background: #fee2e2; }
 
-.income-text { color: white; }
+.income-text { color: #10b981; }
 .expense-text { color: var(--danger); }
 
 /* ============================================================
