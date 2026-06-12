@@ -43,5 +43,9 @@ def inject_user():
         "current_user": session.get("username")
     }
 
+@app.route("/manifest.json")
+def manifest():
+    return app.send_static_file("manifest.json")
+
 if __name__ == "__main__":
     app.run(debug=True)
