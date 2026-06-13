@@ -926,3 +926,29 @@ gap: 8px;
     background: #fee2e2;
     color: #991b1b;
 }
+
+.saldo-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.eye-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    opacity: .8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    top: -7px;
+    padding: 0;
+    margin-left: 10px;
+}
+
+.eye-btn svg {
+    width: 32px;
+    height: 32px;
+}
