@@ -9,6 +9,8 @@
 <link rel="apple-touch-icon"
       href="/static/icons/icon-192.png">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
   {% block head %}{% endblock %}
 </head>
 <body>
@@ -35,21 +37,15 @@
   id="darkModeBtn"
   class="btn-icon"
   title="Dark Mode">
-  🌙
+  <i class="bi bi-moon-fill"></i>
 </button>
 
-<a
-  href="/profil"
-  class="btn-icon"
-  title="Profil">
-  👤
+<a href="/profil" class="btn-icon">
+    <i class="bi bi-person-circle"></i>
 </a>
 
-<a
-  href="/logout"
-  class="btn-icon btn-icon--danger"
-  title="Logout">
-  ⎋
+<a href="/logout" class="btn-icon btn-icon--danger">
+    <i class="bi bi-box-arrow-right"></i>
 </a>
 
   </div>
@@ -65,19 +61,27 @@
 {% if session.login %}
 <nav class="bottom-nav">
   <a href="/" class="{% if request.path == '/' %}active{% endif %}">
-    <span class="nav-icon">🏠</span>
+    <span class="nav-icon">
+      <i class="bi bi-house-fill"></i>
+    </span>
     <span>Home</span>
   </a>
   <a href="/tambah" class="{% if request.path == '/tambah' %}active{% endif %}">
-    <span class="nav-icon">➕</span>
+    <span class="nav-icon">
+      <i class="bi bi-plus-circle-fill"></i>
+    </span>
     <span>Tambah</span>
   </a>
   <a href="/budget" class="{% if request.path == '/budget' %}active{% endif %}">
-    <span class="nav-icon">💸</span>
+    <span class="nav-icon">
+      <i class="bi bi-wallet2"></i>
+    </span>
     <span>Budget</span>
   </a>
   <a href="/target" class="{% if request.path == '/target' %}active{% endif %}">
-    <span class="nav-icon">🎯</span>
+    <span class="nav-icon">
+      <i class="bi bi-bullseye"></i>
+    </span>
     <span>Target</span>
   </a>
 </nav>

@@ -467,8 +467,8 @@ h1, h2, h3 { margin: 0 0 8px; }
 }
 .budget-stat-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
 .budget-stat-value { font-size: 15px; font-weight: 700; }
-.income { color: white; }
-.expense { color: var(--danger); }
+.saldo-sub.income { color: white; }
+.saldo-sub.expense { color: var(--danger); }
 
 .progress-wrap { margin-bottom: 12px; }
 .progress-bar {

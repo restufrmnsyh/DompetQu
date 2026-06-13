@@ -93,12 +93,21 @@ def tambah():
         return redirect("/login")
 
     if request.method == "POST":
-        tanggal = request.form["tanggal"]
+        tanggal = datetime.now().strftime("%Y-%m-%d")
+
         jenis = request.form["jenis"]
         kategori = request.form["kategori"]
         nominal = int(request.form["nominal"])
         catatan = request.form.get("catatan", "")
-        tambah_transaksi(session["user_id"], tanggal, jenis, kategori, nominal, catatan)
+
+        tambah_transaksi(
+            session["user_id"],
+            tanggal,
+            jenis,
+            kategori,
+            nominal,
+            catatan
+        )
         return redirect("/")
 
     kategori = ambil_kategori()

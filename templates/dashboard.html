@@ -34,7 +34,7 @@ block content %}
 </div>
   <div class="saldo-row">
     <div class="saldo-sub income">
-      <span class="saldo-sub-icon">↑</span>
+      <span class="saldo-sub-icon"><i class="bi bi-graph-up-arrow"></i></span>
       <div>
         <div class="saldo-sub-label">Pemasukan</div>
         <div class="saldo-sub-value">Rp {{ pemasukan | rupiah }}</div>
@@ -42,7 +42,7 @@ block content %}
     </div>
     <div class="saldo-divider"></div>
     <div class="saldo-sub expense">
-      <span class="saldo-sub-icon">↓</span>
+      <span class="saldo-sub-icon"><i class="bi bi-graph-down-arrow"></i></span>
       <div>
         <div class="saldo-sub-label">Pengeluaran</div>
         <div class="saldo-sub-value">Rp {{ pengeluaran | rupiah }}</div>
@@ -54,7 +54,9 @@ block content %}
 <div class="stats-grid">
 
   <div class="stat-card">
-    <div class="stat-icon">📄</div>
+    <div class="stat-icon">
+      <i class="bi bi-receipt"></i>
+    </div>
     <div class="stat-content">
       <div class="stat-value">{{ total_transaksi }}</div>
       <div class="stat-label">Total Transaksi</div>
@@ -62,7 +64,9 @@ block content %}
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">🏷️</div>
+    <div class="stat-icon">
+      <i class="bi bi-tags"></i>
+    </div>
     <div class="stat-content">
       <div class="stat-value">{{ kategori_terbesar }}</div>
       <div class="stat-label">Kategori Terbesar</div>
@@ -70,7 +74,9 @@ block content %}
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">💸</div>
+    <div class="stat-icon">
+      <i class="bi bi-cash-stack"></i>
+    </div>
     <div class="stat-content">
       <div class="stat-value">
         Rp {{ rata_pengeluaran | rupiah }}
@@ -82,7 +88,9 @@ block content %}
   </div>
 
   <div class="stat-card">
-    <div class="stat-icon">📅</div>
+    <div class="stat-icon">
+      <i class="bi bi-calendar3"></i>
+    </div>
     <div class="stat-content">
       <div class="stat-value">
         {{ bulan_aktif }}
@@ -123,16 +131,16 @@ block content %}
 </div>
 
 <div class="quick-menu">
-  <a href="/export" class="quick-item"> <span>📊</span><span>Export</span> </a>
-  <a href="/backup" class="quick-item"> <span>💾</span><span>Backup</span> </a>
+  <a href="/export" class="quick-item"> <span><i class="bi bi-file-earmark-excel-fill"></i></span><span>Export</span> </a>
+  <a href="/backup" class="quick-item"> <span> <i class="bi bi-cloud-arrow-down-fill"></i></span><span>Backup</span> </a>
   <a href="/kategori" class="quick-item">
-    <span>🏷️</span><span>Kategori</span>
+    <span><i class="bi bi-tags-fill"></i></span><span>Kategori</span>
   </a>
   <a
     href="/reset"
     class="quick-item"
     onclick="return confirm('Yakin ingin menghapus semua transaksi?')">
-    <span>🗑️</span>
+    <span> <i class="bi bi-trash3-fill"></i></span>
     <span>Reset</span>
 </a>
 </div>
@@ -199,12 +207,12 @@ block content %}
         }}
       </div>
       <div class="tx-actions">
-        <a href="/edit/{{ t[0] }}" class="tx-btn tx-btn--edit">✏️</a>
+        <a href="/edit/{{ t[0] }}" class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i></a>
         <a
           href="/hapus/{{ t[0] }}"
           class="tx-btn tx-btn--del"
           onclick="return confirm('Hapus transaksi ini?');"
-          >🗑</a
+          ><i class="bi bi-trash3-fill"></i></a
         >
       </div>
     </div>
