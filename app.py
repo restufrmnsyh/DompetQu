@@ -5,6 +5,7 @@ from routes.keuangan import keuangan
 from routes.transaksi import transaksi
 from routes.auth import auth
 from routes.kategori import kategori
+from routes.analisis import analisis
 
 from dotenv import load_dotenv
 import os
@@ -21,6 +22,7 @@ app.register_blueprint(laporan)
 app.register_blueprint(keuangan)
 app.register_blueprint(auth)
 app.register_blueprint(kategori)
+app.register_blueprint(analisis)
 
 init_db()
 

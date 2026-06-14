@@ -1,6 +1,8 @@
 import sqlite3
 import hashlib
 
+from datetime import datetime, timedelta
+
 DB_PATH = "database.db"
 
 def hash_password(password):
@@ -597,3 +599,129 @@ def tambah_user(username, password):
 
     conn.close()
     return berhasil
+
+def ambil_pengeluaran_mingguan():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT strftime('%W', tanggal) as minggu,
+           SUM(nominal)
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+    GROUP BY minggu
+    ORDER BY minggu DESC
+    LIMIT 8
+    """)
+    data = cursor.fetchall()
+    conn.close()
+    return data
+
+
+def ambil_pengeluaran_harian_minggu():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    # Ambil pengeluaran 7 hari terakhir, group by hari
+    cursor.execute("""
+    SELECT
+        CASE strftime('%w', tanggal)
+            WHEN '1' THEN 'Senin'
+            WHEN '2' THEN 'Selasa'
+            WHEN '3' THEN 'Rabu'
+            WHEN '4' THEN 'Kamis'
+            WHEN '5' THEN 'Jumat'
+            WHEN '6' THEN 'Sabtu'
+            WHEN '0' THEN 'Minggu'
+        END as hari,
+        strftime('%w', tanggal) as hari_num,
+        SUM(nominal) as total
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+      AND tanggal >= date('now', '-6 days')
+    GROUP BY strftime('%w', tanggal), hari
+    ORDER BY
+        CASE strftime('%w', tanggal)
+            WHEN '1' THEN 1
+            WHEN '2' THEN 2
+            WHEN '3' THEN 3
+            WHEN '4' THEN 4
+            WHEN '5' THEN 5
+            WHEN '6' THEN 6
+            WHEN '0' THEN 7
+        END
+    """)
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Pastikan semua 7 hari muncul walau 0
+    urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu']
+    data_dict = {r[0]: r[2] for r in rows}
+    data = [(hari, data_dict.get(hari, 0)) for hari in urutan]
+    total = sum(x[1] for x in data)
+    return data, total
+
+
+def ambil_pengeluaran_per_hari_bulan(bulan=None):
+    """Pengeluaran per tanggal dalam sebulan untuk heatmap/line chart"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    query = """
+    SELECT tanggal, SUM(nominal)
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+    """
+    params = []
+    if bulan:
+        query += " AND strftime('%Y-%m', tanggal) = ?"
+        params.append(bulan)
+    query += " GROUP BY tanggal ORDER BY tanggal"
+    cursor.execute(query, params)
+    data = cursor.fetchall()
+    conn.close()
+    return data
+
+
+def ambil_tren_harian(hari=7):
+    """Pemasukan vs pengeluaran N hari terakhir"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(f"""
+    SELECT tanggal,
+           SUM(CASE WHEN jenis='Pemasukan' THEN nominal ELSE 0 END),
+           SUM(CASE WHEN jenis='Pengeluaran' THEN nominal ELSE 0 END)
+    FROM transaksi
+    WHERE tanggal >= date('now', '-{hari-1} days')
+    GROUP BY tanggal
+    ORDER BY tanggal
+    """)
+    data = cursor.fetchall()
+    conn.close()
+    return data
+
+
+def ambil_statistik_hari():
+    """Rata-rata pengeluaran per hari dalam seminggu (semua waktu)"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT
+        CASE strftime('%w', tanggal)
+            WHEN '1' THEN 'Senin'
+            WHEN '2' THEN 'Selasa'
+            WHEN '3' THEN 'Rabu'
+            WHEN '4' THEN 'Kamis'
+            WHEN '5' THEN 'Jumat'
+            WHEN '6' THEN 'Sabtu'
+            WHEN '0' THEN 'Minggu'
+        END as hari,
+        strftime('%w', tanggal) as num,
+        AVG(nominal) as rata
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+    GROUP BY num
+    ORDER BY CAST(num AS INTEGER)
+    """)
+    data = cursor.fetchall()
+    conn.close()
+    urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu']
+    data_dict = {r[0]: r[2] for r in data}
+    return [(h, data_dict.get(h, 0)) for h in urutan]

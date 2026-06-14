@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Analisis — DompetQu{% endblock %}
+
+{% block content %}
+
+<!-- Perbandingan bulan ini vs bulan lalu -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-arrow-left-right"></i> Bulan Ini vs Bulan Lalu</h2>
+  <div class="compare-grid">
+    <div class="compare-item">
+      <div class="compare-label">Pemasukan bulan ini</div>
+      <div class="compare-value income">Rp {{ p_ini | rupiah }}</div>
+      <div class="compare-sub">vs Rp {{ p_lalu | rupiah }} bulan lalu</div>
+    </div>
+    <div class="compare-item">
+      <div class="compare-label">Pengeluaran bulan ini</div>
+      <div class="compare-value expense">Rp {{ e_ini | rupiah }}</div>
+      <div class="compare-sub">vs Rp {{ e_lalu | rupiah }} bulan lalu</div>
+    </div>
+  </div>
+  {% if selisih_pengeluaran > 0 %}
+  <div class="alert alert-warning">
+    📈 Pengeluaran naik <b>Rp {{ selisih_pengeluaran | rupiah }}</b>
+    ({{ selisih_persen | round(1) }}%) dibanding bulan lalu
+  </div>
+  {% elif selisih_pengeluaran < 0 %}
+  <div class="alert alert-success">
+    📉 Pengeluaran turun <b>Rp {{ (selisih_pengeluaran * -1) | rupiah }}</b>
+    ({{ (selisih_persen * -1) | round(1) }}%) dibanding bulan lalu 🎉
+  </div>
+  {% else %}
+  <div class="alert alert-info">Pengeluaran sama seperti bulan lalu.</div>
+  {% endif %}
+</div>
+
+<!-- Chart mingguan -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Pengeluaran 7 Hari Terakhir</h2>
+  <canvas id="mingguanChart" height="160"></canvas>
+</div>
+
+<!-- Detail harian -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-calendar-week"></i> Rincian Per Hari</h2>
+  {% for hari, nominal in data_mingguan %}
+  <div class="week-row {% if hari == hari_terboros[0] %}week-row--peak{% endif %}">
+    <div class="week-day">
+      {{ hari }}
+      {% if hari == hari_terboros[0] and hari_terboros[1] > 0 %}
+      <span class="peak-badge">🔥 terboros</span>
+      {% endif %}
+    </div>
+    <div class="week-bar-wrap">
+      <div class="week-bar" style="width: {% if total_mingguan > 0 %}{{ (nominal / hari_terboros[1] * 100) | round }}{% else %}0{% endif %}%"></div>
+    </div>
+    <strong class="week-amount {% if nominal == 0 %}muted{% endif %}">
+      {% if nominal > 0 %}Rp {{ nominal | rupiah }}{% else %}–{% endif %}
+    </strong>
+  </div>
+  {% endfor %}
+  <div class="week-total-row">
+    <span>Total minggu ini</span>
+    <strong>Rp {{ total_mingguan | rupiah }}</strong>
+  </div>
+</div>
+
+<!-- Tren 7 hari pemasukan vs pengeluaran -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-graph-up"></i> Tren 7 Hari Terakhir</h2>
+  {% if tren_labels %}
+  <canvas id="trenChart" height="160"></canvas>
+  {% else %}
+  <div class="empty-state" style="padding: 20px 0;">
+    <p>Belum ada data 7 hari terakhir.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Pola kebiasaan belanja -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-clock-history"></i> Pola Belanja per Hari</h2>
+  <p style="font-size:13px; color: var(--muted); margin: -8px 0 12px;">Rata-rata pengeluaran berdasarkan semua data transaksi</p>
+  <canvas id="polaBelanja" height="160"></canvas>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const hariLabels = {{ hari_labels | tojson }};
+const hariValues = {{ hari_values | tojson }};
+const trenLabels = {{ tren_labels | tojson }};
+const trenPemasukan = {{ tren_pemasukan | tojson }};
+const trenPengeluaran = {{ tren_pengeluaran | tojson }};
+const statLabels = {{ stat_labels | tojson }};
+const statValues = {{ stat_values | tojson }};
+
+const peakVal = Math.max(...hariValues);
+const barColors = hariValues.map(v => v === peakVal && v > 0 ? "#ef4444" : "#10b981");
+
+// Chart 1: Mingguan bar
+new Chart(document.getElementById("mingguanChart"), {
+  type: "bar",
+  data: {
+    labels: hariLabels,
+    datasets: [{
+      label: "Pengeluaran",
+      data: hariValues,
+      backgroundColor: barColors,
+      borderRadius: 10
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
+  }
+});
+
+// Chart 2: Tren line
+if (trenLabels.length > 0) {
+  new Chart(document.getElementById("trenChart"), {
+    type: "line",
+    data: {
+      labels: trenLabels,
+      datasets: [
+        { label: "Pemasukan", data: trenPemasukan, borderColor: "#10b981", backgroundColor: "rgba(16,185,129,.1)", tension: 0.4, fill: true },
+        { label: "Pengeluaran", data: trenPengeluaran, borderColor: "#ef4444", backgroundColor: "rgba(239,68,68,.1)", tension: 0.4, fill: true }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "bottom" } },
+      scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
+    }
+  });
+}
+
+// Chart 3: Pola belanja radar/bar
+new Chart(document.getElementById("polaBelanja"), {
+  type: "bar",
+  data: {
+    labels: statLabels,
+    datasets: [{
+      label: "Rata-rata",
+      data: statValues,
+      backgroundColor: "rgba(139,92,246,.7)",
+      borderRadius: 10
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
+  }
+});
+</script>
+{% endblock %}

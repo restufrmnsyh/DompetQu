@@ -136,12 +136,9 @@ block content %}
   <a href="/kategori" class="quick-item">
     <span><i class="bi bi-tags-fill"></i></span><span>Kategori</span>
   </a>
-  <a
-    href="/reset"
-    class="quick-item"
-    onclick="return confirm('Yakin ingin menghapus semua transaksi?')">
-    <span> <i class="bi bi-trash3-fill"></i></span>
-    <span>Reset</span>
+  <a href="#" class="quick-item" onclick="showResetModal(); return false;">
+  <span><i class="bi bi-trash3-fill"></i></span>
+  <span>Reset</span>
 </a>
 </div>
 
@@ -209,11 +206,13 @@ block content %}
       <div class="tx-actions">
         <a href="/edit/{{ t[0] }}" class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i></a>
         <a
-          href="/hapus/{{ t[0] }}"
-          class="tx-btn tx-btn--del"
-          onclick="return confirm('Hapus transaksi ini?');"
-          ><i class="bi bi-trash3-fill"></i></a
-        >
+    href="#"
+    class="tx-btn tx-btn--del"
+    onclick="showDeleteModal('{{ t[0] }}')">
+
+    <i class="bi bi-trash3-fill"></i>
+
+</a>
       </div>
     </div>
   </div>
@@ -305,5 +304,88 @@ const bulanPengeluaran = {{ bulan_pengeluaran|tojson}};
       document.getElementById("chart-bar").style.display = tab.dataset.chart === "bar" ? "" : "none";
     });
   });
+</script>
+
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-box">
+
+    <div class="modal-icon-wrap">
+      <div class="modal-sparkle s1">✦</div>
+      <div class="modal-sparkle s2">✦</div>
+      <div class="modal-sparkle s3">◆</div>
+      <div class="modal-sparkle s4">◆</div>
+      <div class="modal-icon-circle">
+        <i class="bi bi-trash3-fill"></i>
+        <div class="modal-warning-badge">⚠</div>
+      </div>
+    </div>
+
+    <h3>Hapus transaksi ini?</h3>
+    <p>Transaksi ini akan dihapus secara permanen<br>dan tidak dapat dikembalikan.</p>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeDeleteModal()">
+        <i class="bi bi-x-circle"></i> Batal
+      </button>
+      <a id="confirmDeleteBtn" href="#" class="modal-btn modal-delete">
+        <i class="bi bi-trash3-fill"></i> Hapus
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showDeleteModal(id) {
+  document.getElementById("deleteModal").classList.add("show");
+  document.getElementById("confirmDeleteBtn").href = "/hapus/" + id;
+}
+function closeDeleteModal() {
+  document.getElementById("deleteModal").classList.remove("show");
+}
+document.getElementById("deleteModal").addEventListener("click", function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+</script>
+
+<div id="resetModal" class="modal-overlay">
+  <div class="modal-box">
+
+    <div class="modal-icon-wrap">
+      <div class="modal-sparkle s1">✦</div>
+      <div class="modal-sparkle s2">✦</div>
+      <div class="modal-sparkle s3">◆</div>
+      <div class="modal-sparkle s4">◆</div>
+      <div class="modal-icon-circle">
+        <i class="bi bi-trash3-fill"></i>
+        <div class="modal-warning-badge">⚠</div>
+      </div>
+    </div>
+
+    <h3>Reset semua transaksi?</h3>
+    <p>Semua data transaksi akan dihapus secara permanen<br>dan tidak dapat dikembalikan.</p>
+
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeResetModal()">
+        <i class="bi bi-x-circle"></i> Batal
+      </button>
+      <a href="/reset" class="modal-btn modal-delete">
+        <i class="bi bi-trash3-fill"></i> Reset
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function showResetModal() {
+  document.getElementById("resetModal").classList.add("show");
+}
+function closeResetModal() {
+  document.getElementById("resetModal").classList.remove("show");
+}
+document.getElementById("resetModal").addEventListener("click", function(e) {
+  if (e.target === this) closeResetModal();
+});
 </script>
 {% endblock %}
