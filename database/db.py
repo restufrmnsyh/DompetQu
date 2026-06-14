@@ -600,24 +600,7 @@ def tambah_user(username, password):
     conn.close()
     return berhasil
 
-def ambil_pengeluaran_mingguan():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("""
-    SELECT strftime('%W', tanggal) as minggu,
-           SUM(nominal)
-    FROM transaksi
-    WHERE jenis = 'Pengeluaran'
-    GROUP BY minggu
-    ORDER BY minggu DESC
-    LIMIT 8
-    """)
-    data = cursor.fetchall()
-    conn.close()
-    return data
-
-
-def ambil_pengeluaran_harian_minggu():
+def ambil_pengeluaran_harian_minggu(user_id):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     # Ambil pengeluaran 7 hari terakhir, group by hari
@@ -635,7 +618,7 @@ def ambil_pengeluaran_harian_minggu():
         strftime('%w', tanggal) as hari_num,
         SUM(nominal) as total
     FROM transaksi
-    WHERE jenis = 'Pengeluaran'
+    WHERE user_id = ? AND jenis = 'Pengeluaran'
       AND tanggal >= date('now', '-6 days')
     GROUP BY strftime('%w', tanggal), hari
     ORDER BY
@@ -648,7 +631,7 @@ def ambil_pengeluaran_harian_minggu():
             WHEN '6' THEN 6
             WHEN '0' THEN 7
         END
-    """)
+    """, (user_id,))
     rows = cursor.fetchall()
     conn.close()
 
@@ -680,7 +663,7 @@ def ambil_pengeluaran_per_hari_bulan(bulan=None):
     return data
 
 
-def ambil_tren_harian(hari=7):
+def ambil_tren_harian(user_id, hari=7):
     """Pemasukan vs pengeluaran N hari terakhir"""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -689,10 +672,10 @@ def ambil_tren_harian(hari=7):
            SUM(CASE WHEN jenis='Pemasukan' THEN nominal ELSE 0 END),
            SUM(CASE WHEN jenis='Pengeluaran' THEN nominal ELSE 0 END)
     FROM transaksi
-    WHERE tanggal >= date('now', '-{hari-1} days')
+    WHERE user_id = ? AND tanggal >= date('now', '-{hari-1} days')
     GROUP BY tanggal
     ORDER BY tanggal
-    """)
+    """, (user_id,))
     data = cursor.fetchall()
     conn.close()
     return data
@@ -726,32 +709,32 @@ def ambil_statistik_hari():
     data_dict = {r[0]: r[2] for r in data}
     return [(h, data_dict.get(h, 0)) for h in urutan]
 
-def ambil_pengeluaran_per_tanggal_bulan(bulan):
+def ambil_pengeluaran_per_tanggal_bulan(user_id,bulan):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
     SELECT strftime('%d', tanggal) as tgl, SUM(nominal)
     FROM transaksi
-    WHERE jenis = 'Pengeluaran'
+    WHERE user_id = ? AND jenis = 'Pengeluaran'
       AND strftime('%Y-%m', tanggal) = ?
     GROUP BY tgl
     ORDER BY tgl
-    """, (bulan,))
+    """, (user_id,bulan))
     data = cursor.fetchall()
     conn.close()
     return {int(r[0]): r[1] for r in data}
 
 
-def ambil_top_transaksi(limit=5):
+def ambil_top_transaksi(user_id ,limit=5):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
     SELECT tanggal, kategori, nominal, catatan
     FROM transaksi
-    WHERE jenis = 'Pengeluaran'
+    WHERE user_id = ? AND jenis = 'Pengeluaran'
     ORDER BY nominal DESC
     LIMIT ?
-    """, (limit,))
+    """, (user_id,limit))
     data = cursor.fetchall()
     conn.close()
     return data

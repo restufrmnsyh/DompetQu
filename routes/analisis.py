@@ -35,23 +35,23 @@ def halaman_analisis():
     selisih_persen = ((e_ini - e_lalu) / e_lalu * 100) if e_lalu > 0 else 0
 
     # Rincian per hari minggu ini
-    data_mingguan, total_mingguan = ambil_pengeluaran_harian_minggu()
+    data_mingguan, total_mingguan = ambil_pengeluaran_harian_minggu(session["user_id"])
     hari_terboros = max(data_mingguan, key=lambda x: x[1]) if any(x[1] > 0 for x in data_mingguan) else ("–", 0)
 
     # Tren 7 hari
-    tren = ambil_tren_harian(7)
+    tren = ambil_tren_harian(session["user_id"],7)
     tren_labels = [x[0] for x in tren]
     tren_pemasukan = [x[1] for x in tren]
     tren_pengeluaran = [x[2] for x in tren]
 
     # Kalender pengeluaran bulan ini
     jumlah_hari = calendar.monthrange(tahun, bulan)[1]
-    data_kalender = ambil_pengeluaran_per_tanggal_bulan(bulan_ini)
+    data_kalender = ambil_pengeluaran_per_tanggal_bulan(session["user_id"],bulan_ini)
     max_kal = max(data_kalender.values()) if data_kalender else 1
     hari_pertama = calendar.monthrange(tahun, bulan)[0]
 
     # Top 5 transaksi terbesar
-    top_transaksi = ambil_top_transaksi(5)
+    top_transaksi = ambil_top_transaksi(session["user_id"],5)
 
     # Kategori pengeluaran bulan ini
     kategori_bulan = ambil_pengeluaran_per_kategori(session["user_id"],bulan=bulan_ini)
