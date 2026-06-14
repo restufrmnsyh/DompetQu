@@ -104,28 +104,63 @@ block content %}
 </div>
 
 <div class="card insight-card">
-
-  <h2>💡 Insight Keuangan</h2>
-
-  <p>
-    📈 Pengeluaran terbesar:
-    <b>{{ kategori_terbesar[0] }}</b>
-    (Rp {{ kategori_terbesar[1] | rupiah }})
-  </p>
-
-  <p>
-    💸 Pengeluaran mencapai
-    <b>{{ persentase_pengeluaran | round(1) }}%</b>
-    dari pemasukan
-  </p>
-
-  {% if persentase_pengeluaran > 80 %}
-
-  <div class="warning-box">
-    ⚠ Pengeluaran sudah mendekati pemasukan.
-    Pertimbangkan mengurangi pengeluaran.
+  <div class="insight-header">
+    <span class="insight-icon">💡</span>
+    <h2>Insight Keuangan</h2>
   </div>
 
+  <div class="insight-items">
+
+    <div class="insight-item">
+      <div class="insight-item-icon" style="background:#d1fae5">📈</div>
+      <div class="insight-item-body">
+        <div class="insight-item-label">Pengeluaran Terbesar</div>
+        <div class="insight-item-value">
+          {{ kategori_terbesar[0] }}
+          <span class="insight-item-sub">Rp {{ kategori_terbesar[1] | rupiah }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-item">
+      <div class="insight-item-icon" style="background:#dbeafe">💸</div>
+      <div class="insight-item-body">
+        <div class="insight-item-label">Rasio Pengeluaran</div>
+        <div class="insight-item-value">
+          {{ persentase_pengeluaran | round(1) }}%
+          <span class="insight-item-sub">dari total pemasukan</span>
+        </div>
+      </div>
+      <div class="insight-badge {% if persentase_pengeluaran > 80 %}badge-danger{% elif persentase_pengeluaran > 50 %}badge-warning{% else %}badge-safe{% endif %}">
+        {% if persentase_pengeluaran > 80 %}Boros{% elif persentase_pengeluaran > 50 %}Sedang{% else %}Hemat{% endif %}
+      </div>
+    </div>
+
+    <div class="insight-item">
+      <div class="insight-item-icon" style="background:#f3e8ff">💰</div>
+      <div class="insight-item-body">
+        <div class="insight-item-label">Sisa Pemasukan</div>
+        <div class="insight-item-value {% if pemasukan - pengeluaran < 0 %}expense{% else %}income{% endif %}">
+          Rp {{ (pemasukan - pengeluaran) | rupiah }}
+          <span class="insight-item-sub">setelah pengeluaran</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {% if persentase_pengeluaran > 80 %}
+  <div class="insight-alert danger">
+    🚨 Pengeluaran sudah mendekati pemasukan! Pertimbangkan mengurangi pengeluaran.
+  </div>
+  {% elif persentase_pengeluaran > 50 %}
+  <div class="insight-alert warning">
+    ⚠️ Pengeluaran sudah melewati setengah pemasukan. Tetap pantau keuanganmu.
+  </div>
+  {% else %}
+  <div class="insight-alert success">
+    ✅ Keuangan kamu sehat! Terus pertahankan pola ini.
+  </div>
   {% endif %}
 
 </div>

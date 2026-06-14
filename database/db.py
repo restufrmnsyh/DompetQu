@@ -725,3 +725,33 @@ def ambil_statistik_hari():
     urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu']
     data_dict = {r[0]: r[2] for r in data}
     return [(h, data_dict.get(h, 0)) for h in urutan]
+
+def ambil_pengeluaran_per_tanggal_bulan(bulan):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT strftime('%d', tanggal) as tgl, SUM(nominal)
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+      AND strftime('%Y-%m', tanggal) = ?
+    GROUP BY tgl
+    ORDER BY tgl
+    """, (bulan,))
+    data = cursor.fetchall()
+    conn.close()
+    return {int(r[0]): r[1] for r in data}
+
+
+def ambil_top_transaksi(limit=5):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT tanggal, kategori, nominal, catatan
+    FROM transaksi
+    WHERE jenis = 'Pengeluaran'
+    ORDER BY nominal DESC
+    LIMIT ?
+    """, (limit,))
+    data = cursor.fetchall()
+    conn.close()
+    return data

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Analisis — DompetQu{% endblock %}
+{% block title %}Analisis - DompetQu{% endblock %}
 
 {% block content %}
 
@@ -33,15 +33,39 @@
   {% endif %}
 </div>
 
-<!-- Chart mingguan -->
+<!-- Kategori pengeluaran bulan ini -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Pengeluaran 7 Hari Terakhir</h2>
-  <canvas id="mingguanChart" height="160"></canvas>
+  <h2 class="card-title"><i class="bi bi-tags-fill"></i> Kategori Pengeluaran — {{ bulan_nama }}</h2>
+  {% if kategori_bulan %}
+    {% for kat, nominal in kategori_bulan %}
+    {% set pct = (nominal / total_kategori * 100) | round(1) %}
+    <div class="kat-stat-row">
+      <div class="kat-stat-head">
+        <span class="kat-stat-name">{{ kat }}</span>
+        <span class="kat-stat-pct">{{ pct }}%</span>
+        <span class="kat-stat-val">Rp {{ nominal | rupiah }}</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" style="width: {{ pct }}%;
+          background: {% if pct >= 40 %}#ef4444{% elif pct >= 20 %}#f59e0b{% else %}#10b981{% endif %};">
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+    <div class="kat-stat-total">
+      <span>Total pengeluaran bulan ini</span>
+      <strong>Rp {{ total_kategori | rupiah }}</strong>
+    </div>
+  {% else %}
+  <div class="empty-state" style="padding:16px 0">
+    <p>Belum ada pengeluaran bulan ini.</p>
+  </div>
+  {% endif %}
 </div>
 
-<!-- Detail harian -->
+<!-- Rincian per hari minggu ini -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-calendar-week"></i> Rincian Per Hari</h2>
+  <h2 class="card-title"><i class="bi bi-calendar-week"></i> Rincian Per Hari (Minggu Ini)</h2>
   {% for hari, nominal in data_mingguan %}
   <div class="week-row {% if hari == hari_terboros[0] %}week-row--peak{% endif %}">
     <div class="week-day">
@@ -51,7 +75,7 @@
       {% endif %}
     </div>
     <div class="week-bar-wrap">
-      <div class="week-bar" style="width: {% if total_mingguan > 0 %}{{ (nominal / hari_terboros[1] * 100) | round }}{% else %}0{% endif %}%"></div>
+      <div class="week-bar" style="width: {% if total_mingguan > 0 and hari_terboros[1] > 0 %}{{ (nominal / hari_terboros[1] * 100) | round }}{% else %}0{% endif %}%;"></div>
     </div>
     <strong class="week-amount {% if nominal == 0 %}muted{% endif %}">
       {% if nominal > 0 %}Rp {{ nominal | rupiah }}{% else %}–{% endif %}
@@ -64,23 +88,144 @@
   </div>
 </div>
 
-<!-- Tren 7 hari pemasukan vs pengeluaran -->
+<!-- Tren 7 hari -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-graph-up"></i> Tren 7 Hari Terakhir</h2>
+  <h2 class="card-title"><i class="bi bi-graph-up"></i> Tren Pemasukan vs Pengeluaran (7 Hari)</h2>
   {% if tren_labels %}
   <canvas id="trenChart" height="160"></canvas>
   {% else %}
-  <div class="empty-state" style="padding: 20px 0;">
+  <div class="empty-state" style="padding:16px 0">
     <p>Belum ada data 7 hari terakhir.</p>
   </div>
   {% endif %}
 </div>
 
-<!-- Pola kebiasaan belanja -->
+<!-- Kalender pengeluaran -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-clock-history"></i> Pola Belanja per Hari</h2>
-  <p style="font-size:13px; color: var(--muted); margin: -8px 0 12px;">Rata-rata pengeluaran berdasarkan semua data transaksi</p>
-  <canvas id="polaBelanja" height="160"></canvas>
+  <h2 class="card-title"><i class="bi bi-calendar3"></i> Kalender Pengeluaran - {{ bulan_nama }}</h2>
+  
+  <div class="kal-legend">
+    <span>Sedikit</span>
+    <div class="kal-legend-boxes">
+      <div class="kal-box" style="background:var(--border)"></div>
+      <div class="kal-box" style="background:#bbf7d0"></div>
+      <div class="kal-box" style="background:#4ade80"></div>
+      <div class="kal-box" style="background:#16a34a"></div>
+      <div class="kal-box" style="background:#ef4444"></div>
+    </div>
+    <span>Banyak</span>
+  </div>
+
+  <table class="kal-table">
+    <thead>
+      <tr>
+        {% for h in ['Sen','Sel','Rab','Kam','Jum','Sab','Min'] %}
+        <th>{{ h }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% set ns = namespace(col=0, cells=[]) %}
+      {% for i in range(hari_pertama) %}
+        {% set ns.cells = ns.cells + [none] %}
+      {% endfor %}
+      {% for tgl in range(1, jumlah_hari + 1) %}
+        {% set ns.cells = ns.cells + [tgl] %}
+      {% endfor %}
+      {% set total_cells = ns.cells | length %}
+      {% set rows = ((total_cells + 6) // 7) %}
+      {% for r in range(rows) %}
+      <tr>
+        {% for c in range(7) %}
+        {% set idx = r * 7 + c %}
+        {% if idx < total_cells and ns.cells[idx] is not none %}
+          {% set tgl = ns.cells[idx] %}
+          {% set nominal = data_kalender.get(tgl, 0) %}
+          {% set pct = (nominal / max_kal * 100) if max_kal > 0 else 0 %}
+          <td class="kal-td {% if nominal == max_kal and nominal > 0 %}kal-peak{% endif %}"
+              title="Tgl {{ tgl }}: Rp {{ nominal | rupiah }}"
+              style="background: {% if nominal == 0 %}var(--border){% elif pct < 25 %}#bbf7d0{% elif pct < 50 %}#4ade80{% elif pct < 80 %}#16a34a{% else %}#ef4444{% endif %};">
+            <span class="kal-tgl">{{ tgl }}</span>
+            {% if nominal > 0 %}
+            <span class="kal-nom">{{ (nominal / 1000) | round | int }}k</span>
+            {% endif %}
+          </td>
+        {% else %}
+          <td class="kal-td kal-empty-td"></td>
+        {% endif %}
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if data_kalender %}
+  <div class="kal-info">
+    🔴 Pengeluaran tertinggi: tanggal
+    {% for tgl, val in data_kalender.items() %}{% if val == max_kal %}<b>{{ tgl }}</b>{% endif %}{% endfor %}
+    — Rp {{ max_kal | rupiah }}
+  </div>
+  {% endif %}
+</div>
+
+<!-- Riwayat 6 bulan -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-calendar-range"></i> Riwayat 6 Bulan Terakhir</h2>
+  {% if ringkasan_bulanan %}
+  <div class="bulanan-table">
+    <div class="bulanan-head">
+      <span>Bulan</span>
+      <span style="text-align:right">Masuk</span>
+      <span style="text-align:right">Keluar</span>
+      <span style="text-align:right">Selisih</span>
+    </div>
+    {% for b in ringkasan_bulanan %}
+    {% set selisih = b[1] - b[2] %}
+    {% set bulan_parts = b[0].split('-') %}
+    {% set nama_bulan = ['','Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agt','Sep','Okt','Nov','Des'] %}
+    <div class="bulanan-row">
+      <span class="bulanan-bulan">
+        {{ nama_bulan[bulan_parts[1] | int] }} {{ bulan_parts[0] }}
+      </span>
+      <span class="bulanan-val income">{{ b[1] | rupiah }}</span>
+      <span class="bulanan-val expense">{{ b[2] | rupiah }}</span>
+      <span class="bulanan-val {% if selisih >= 0 %}income{% else %}expense{% endif %}">
+        {% if selisih >= 0 %}+{% endif %}{{ selisih | rupiah }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state" style="padding:16px 0">
+    <p>Belum ada data bulanan.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Top 5 Transaksi Terbesar -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-trophy-fill"></i> Top 5 Pengeluaran Terbesar</h2>
+  {% if top_transaksi %}
+    {% for i, t in top_transaksi | enumerate %}
+    <div class="top-tx-row">
+      <div class="top-tx-rank rank-{{ i + 1 }}">
+        {% if i == 0 %}🥇{% elif i == 1 %}🥈{% elif i == 2 %}🥉{% else %}{{ i + 1 }}{% endif %}
+      </div>
+      <div class="top-tx-info">
+        <div class="top-tx-cat">{{ t[1] }}</div>
+        <div class="top-tx-date">
+          <i class="bi bi-calendar3"></i> {{ t[0] }}
+          {% if t[3] %} · <i class="bi bi-chat-left-text"></i> {{ t[3] }}{% endif %}
+        </div>
+      </div>
+      <div class="top-tx-amount">− Rp {{ t[2] | rupiah }}</div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="empty-state" style="padding:16px 0">
+    <p>Belum ada data pengeluaran.</p>
+  </div>
+  {% endif %}
 </div>
 
 {% endblock %}
@@ -88,72 +233,29 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-const hariLabels = {{ hari_labels | tojson }};
-const hariValues = {{ hari_values | tojson }};
 const trenLabels = {{ tren_labels | tojson }};
 const trenPemasukan = {{ tren_pemasukan | tojson }};
 const trenPengeluaran = {{ tren_pengeluaran | tojson }};
-const statLabels = {{ stat_labels | tojson }};
-const statValues = {{ stat_values | tojson }};
 
-const peakVal = Math.max(...hariValues);
-const barColors = hariValues.map(v => v === peakVal && v > 0 ? "#ef4444" : "#10b981");
-
-// Chart 1: Mingguan bar
-new Chart(document.getElementById("mingguanChart"), {
-  type: "bar",
-  data: {
-    labels: hariLabels,
-    datasets: [{
-      label: "Pengeluaran",
-      data: hariValues,
-      backgroundColor: barColors,
-      borderRadius: 10
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
-  }
-});
-
-// Chart 2: Tren line
 if (trenLabels.length > 0) {
   new Chart(document.getElementById("trenChart"), {
     type: "line",
     data: {
       labels: trenLabels,
       datasets: [
-        { label: "Pemasukan", data: trenPemasukan, borderColor: "#10b981", backgroundColor: "rgba(16,185,129,.1)", tension: 0.4, fill: true },
-        { label: "Pengeluaran", data: trenPengeluaran, borderColor: "#ef4444", backgroundColor: "rgba(239,68,68,.1)", tension: 0.4, fill: true }
+        { label: "Pemasukan", data: trenPemasukan, borderColor: "#10b981",
+          backgroundColor: "rgba(16,185,129,.1)", tension: 0.4, fill: true },
+        { label: "Pengeluaran", data: trenPengeluaran, borderColor: "#ef4444",
+          backgroundColor: "rgba(239,68,68,.1)", tension: 0.4, fill: true }
       ]
     },
     options: {
       responsive: true,
       plugins: { legend: { position: "bottom" } },
-      scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
+      scales: { y: { beginAtZero: true,
+        ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
     }
   });
 }
-
-// Chart 3: Pola belanja radar/bar
-new Chart(document.getElementById("polaBelanja"), {
-  type: "bar",
-  data: {
-    labels: statLabels,
-    datasets: [{
-      label: "Rata-rata",
-      data: statValues,
-      backgroundColor: "rgba(139,92,246,.7)",
-      borderRadius: 10
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: { legend: { display: false } },
-    scales: { y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
-  }
-});
 </script>
 {% endblock %}

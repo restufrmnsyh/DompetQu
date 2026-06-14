@@ -49,5 +49,9 @@ def inject_user():
 def manifest():
     return app.send_static_file("manifest.json")
 
+@app.template_filter("enumerate")
+def filter_enumerate(lst):
+    return list(enumerate(lst))
+
 if __name__ == "__main__":
     app.run(debug=True)
