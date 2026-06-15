@@ -601,47 +601,65 @@ def tambah_user(username, password):
     return berhasil
 
 def ambil_pengeluaran_harian_minggu(user_id):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    # Ambil pengeluaran 7 hari terakhir, group by hari
-    cursor.execute("""
-    SELECT
-        CASE strftime('%w', tanggal)
-            WHEN '1' THEN 'Senin'
-            WHEN '2' THEN 'Selasa'
-            WHEN '3' THEN 'Rabu'
-            WHEN '4' THEN 'Kamis'
-            WHEN '5' THEN 'Jumat'
-            WHEN '6' THEN 'Sabtu'
-            WHEN '0' THEN 'Minggu'
-        END as hari,
-        strftime('%w', tanggal) as hari_num,
-        SUM(nominal) as total
-    FROM transaksi
-    WHERE user_id = ? AND jenis = 'Pengeluaran'
-      AND tanggal >= date('now', '-6 days')
-    GROUP BY strftime('%w', tanggal), hari
-    ORDER BY
-        CASE strftime('%w', tanggal)
-            WHEN '1' THEN 1
-            WHEN '2' THEN 2
-            WHEN '3' THEN 3
-            WHEN '4' THEN 4
-            WHEN '5' THEN 5
-            WHEN '6' THEN 6
-            WHEN '0' THEN 7
-        END
-    """, (user_id,))
-    rows = cursor.fetchall()
+
+    hari_ini = datetime.now()
+
+    awal_minggu = (
+        hari_ini -
+        timedelta(days=hari_ini.weekday())
+    )
+
+    urutan = [
+        "Senin",
+        "Selasa",
+        "Rabu",
+        "Kamis",
+        "Jumat",
+        "Sabtu",
+        "Minggu"
+    ]
+
+    data = []
+    total = 0
+
+    for i in range(7):
+
+        tanggal = (
+            awal_minggu +
+            timedelta(days=i)
+        ).strftime("%Y-%m-%d")
+
+        cursor.execute("""
+        SELECT COALESCE(
+            SUM(nominal),
+            0
+        )
+        FROM transaksi
+        WHERE user_id = ?
+        AND jenis = 'Pengeluaran'
+        AND tanggal = ?
+        """, (
+            user_id,
+            tanggal
+        ))
+
+        nominal = cursor.fetchone()[0]
+
+        total += nominal
+
+        data.append(
+            (
+                urutan[i],
+                nominal
+            )
+        )
+
     conn.close()
 
-    # Pastikan semua 7 hari muncul walau 0
-    urutan = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu']
-    data_dict = {r[0]: r[2] for r in rows}
-    data = [(hari, data_dict.get(hari, 0)) for hari in urutan]
-    total = sum(x[1] for x in data)
     return data, total
-
 
 def ambil_pengeluaran_per_hari_bulan(bulan=None):
     """Pengeluaran per tanggal dalam sebulan untuk heatmap/line chart"""
