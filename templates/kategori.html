@@ -2,34 +2,114 @@
 {% block title %}Kelola Kategori — DompetQu{% endblock %}
 {% block content %}
 <div class="page-header">
-  <a href="/" class="back-btn">← Kembali</a>
-  <h1>🏷️ Kelola Kategori</h1>
+  <a href="/" class="back-btn">
+  <i class="bi bi-arrow-left"></i>
+  Kembali
+</a>
+
+<h1>
+  <i class="bi bi-tags-fill"></i>
+  Kelola Kategori
+</h1>
 </div>
 
 <div class="card">
   <form method="POST" class="inline-form">
     <input type="text" name="nama" placeholder="Nama kategori baru..." required>
-    <button class="btn">Tambah</button>
+    <button class="btn"> <i class="bi bi-plus-circle-fill"></i>
+  Tambah</button>
   </form>
 </div>
 
 <div class="card">
-  <h2 class="card-title">Daftar Kategori</h2>
+  <h2 class="card-title"><i class="bi bi-list-ul"></i> Daftar Kategori</h2>
   {% if kategori %}
     <div class="kat-list">
       {% for k in kategori %}
       <div class="kat-item">
         <span class="kat-name">{{ k[1] }}</span>
-        <a href="/hapus-kategori/{{ k[0] }}" class="tx-btn tx-btn--del"
-           onclick="return confirm('Hapus kategori {{ k[1] }}?')">🗑</a>
+       <a href="#"
+   class="tx-btn tx-btn--del"
+   onclick="showDeleteKategoriModal(
+      '{{ k[0] }}',
+      '{{ k[1] }}'
+   )">
+   <i class="bi bi-trash3-fill"></i>
+</a>
       </div>
       {% endfor %}
     </div>
   {% else %}
     <div class="empty-state">
-      <div class="empty-icon">🏷️</div>
+      <div class="empty-icon">  <i class="bi bi-tags-fill"></i></div>
       <p>Belum ada kategori.</p>
     </div>
   {% endif %}
 </div>
+
+<div class="modal-overlay" id="deleteKategoriModal">
+
+  <div class="modal-box">
+
+    <div class="modal-icon">
+      <i class="bi bi-trash3-fill"></i>
+    </div>
+
+    <h3>Hapus Kategori?</h3>
+
+    <p id="kategoriText"></p>
+
+    <div class="modal-actions">
+
+      <button
+        class="modal-btn modal-cancel"
+        onclick="closeDeleteKategoriModal()">
+        Batal
+      </button>
+
+      <a
+        id="deleteKategoriBtn"
+        class="modal-btn modal-delete">
+        Hapus
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% block scripts %}
+
+<script>
+
+function showDeleteKategoriModal(id, nama){
+
+    document.getElementById(
+        "kategoriText"
+    ).innerHTML =
+        "Kategori <b>" +
+        nama +
+        "</b> akan dihapus.";
+
+    document.getElementById(
+        "deleteKategoriBtn"
+    ).href =
+        "/hapus-kategori/" + id;
+
+    document.getElementById(
+        "deleteKategoriModal"
+    ).classList.add("show");
+}
+
+function closeDeleteKategoriModal(){
+
+    document.getElementById(
+        "deleteKategoriModal"
+    ).classList.remove("show");
+}
+
+</script>
+
+{% endblock %}
 {% endblock %}
