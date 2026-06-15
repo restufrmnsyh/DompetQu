@@ -1459,3 +1459,153 @@ gap: 8px;
   flex-shrink: 0;
   text-align: right;
 }
+
+/* ============================================================
+   ANALISIS MINGGUAN
+   ============================================================ */
+
+.minggu-filter-form { }
+
+.minggu-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.minggu-opt {
+  cursor: pointer;
+  display: block;
+}
+.minggu-opt input[type="radio"] { display: none; }
+
+.minggu-opt-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--border);
+  background: var(--bg);
+  transition: all .2s;
+  cursor: pointer;
+}
+.minggu-opt--active .minggu-opt-label,
+.minggu-opt input:checked + .minggu-opt-label {
+  border-color: var(--primary);
+  background: #d1fae5;
+  color: #065f46;
+}
+body.dark .minggu-opt--active .minggu-opt-label,
+body.dark .minggu-opt input:checked + .minggu-opt-label {
+  background: #064e3b;
+  color: #6ee7b7;
+}
+
+.minggu-opt-num {
+  font-size: 14px;
+  font-weight: 700;
+}
+.minggu-opt-range {
+  font-size: 11px;
+  color: var(--muted);
+}
+.minggu-opt--active .minggu-opt-range,
+.minggu-opt input:checked + .minggu-opt-label .minggu-opt-range {
+  color: #059669;
+}
+
+.minggu-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  margin-top: 14px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.minggu-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.minggu-row:last-child { border-bottom: none; }
+.minggu-row--peak { background: rgba(239,68,68,.04); border-radius: 8px; padding: 12px 8px; }
+
+.minggu-day-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 36px;
+  flex-shrink: 0;
+}
+.minggu-hari {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+.minggu-tgl {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  line-height: 1;
+}
+
+.minggu-bars { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.minggu-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.minggu-bar-label {
+  font-size: 10px;
+  color: var(--muted);
+  width: 32px;
+  flex-shrink: 0;
+}
+.minggu-bar-wrap {
+  flex: 1;
+  background: var(--border);
+  border-radius: 20px;
+  height: 8px;
+  overflow: hidden;
+}
+.minggu-bar {
+  height: 100%;
+  border-radius: 20px;
+  transition: width .5s ease;
+}
+.keluar-bar { background: #ef4444; }
+.masuk-bar  { background: #10b981; }
+.minggu-bar-val {
+  font-size: 12px;
+  font-weight: 700;
+  width: 88px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.peak-badge-inline { font-size: 18px; flex-shrink: 0; }
+
+.analisis-shortcut {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  text-decoration: none;
+  transition: transform .15s;
+}
+.analisis-shortcut:hover { transform: translateY(-2px); }
+.analisis-shortcut-icon {
+  font-size: 28px;
+  width: 48px; height: 48px;
+  background: #d1fae5;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.analisis-shortcut-title { font-weight: 700; font-size: 15px; }
+.analisis-shortcut-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }

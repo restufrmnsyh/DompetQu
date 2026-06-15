@@ -756,3 +756,67 @@ def ambil_top_transaksi(user_id ,limit=5):
     data = cursor.fetchall()
     conn.close()
     return data
+
+def ambil_pengeluaran_per_minggu(bulan, minggu):
+    """
+    Ambil pengeluaran per hari untuk minggu ke-N dalam bulan tertentu.
+    minggu: 1-4
+    bulan: format 'YYYY-MM'
+    """
+    import calendar
+    from datetime import date
+
+    tahun, bln = map(int, bulan.split('-'))
+    jumlah_hari = calendar.monthrange(tahun, bln)[1]
+
+    # Tentukan rentang tanggal per minggu
+    minggu_ranges = []
+    start = 1
+    for w in range(1, 5):
+        end = min(start + 6, jumlah_hari)
+        minggu_ranges.append((start, end))
+        start = end + 1
+        if start > jumlah_hari:
+            break
+
+    if minggu < 1 or minggu > len(minggu_ranges):
+        return [], 0, "", ""
+
+    tgl_start, tgl_end = minggu_ranges[minggu - 1]
+    date_start = f"{bulan}-{tgl_start:02d}"
+    date_end   = f"{bulan}-{tgl_end:02d}"
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+    SELECT tanggal,
+           SUM(CASE WHEN jenis='Pengeluaran' THEN nominal ELSE 0 END) as keluar,
+           SUM(CASE WHEN jenis='Pemasukan'   THEN nominal ELSE 0 END) as masuk
+    FROM transaksi
+    WHERE tanggal BETWEEN ? AND ?
+    GROUP BY tanggal
+    ORDER BY tanggal
+    """, (date_start, date_end))
+    rows = cursor.fetchall()
+    conn.close()
+
+    # Isi semua hari dalam rentang (termasuk yang 0)
+    from datetime import date, timedelta
+    d = date(tahun, bln, tgl_start)
+    end_d = date(tahun, bln, tgl_end)
+    data_dict = {r[0]: (r[1], r[2]) for r in rows}
+
+    result = []
+    while d <= end_d:
+        tgl_str = d.strftime("%Y-%m-%d")
+        keluar, masuk = data_dict.get(tgl_str, (0, 0))
+        result.append({
+            "tanggal": tgl_str,
+            "hari": ["Sen","Sel","Rab","Kam","Jum","Sab","Min"][d.weekday()],
+            "keluar": keluar,
+            "masuk": masuk,
+        })
+        d += timedelta(days=1)
+
+    total = sum(r["keluar"] for r in result)
+    return result, total, date_start, date_end

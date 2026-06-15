@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+{% block title %}Analisis Mingguan — DompetQu{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <a href="/analisis" class="back-btn">← Kembali</a>
+  <h1><i class="bi bi-calendar-week"></i> Pengeluaran Mingguan</h1>
+</div>
+
+<!-- Filter -->
+<div class="card">
+  <form method="GET" action="/analisis/minggu" class="minggu-filter-form">
+
+    <div class="form-group" style="margin-bottom:12px">
+      <label>Bulan</label>
+      <input type="month" name="bulan" value="{{ bulan }}" class="filter-input" style="width:100%">
+    </div>
+
+    <div class="form-group" style="margin-bottom:0">
+      <label>Pilih Minggu</label>
+      <div class="minggu-options">
+        {% for opt in minggu_options %}
+        <label class="minggu-opt {% if opt.num == minggu %}minggu-opt--active{% endif %}">
+          <input type="radio" name="minggu" value="{{ opt.num }}"
+                 {% if opt.num == minggu %}checked{% endif %}
+                 onchange="this.form.submit()">
+          <span class="minggu-opt-label">
+            <span class="minggu-opt-num">Minggu {{ opt.num }}</span>
+            <span class="minggu-opt-range">{{ opt.label.split('(')[1].replace(')','') }}</span>
+          </span>
+        </label>
+        {% endfor %}
+      </div>
+    </div>
+
+  </form>
+</div>
+
+<!-- Ringkasan -->
+<div class="card">
+  <h2 class="card-title">
+    <i class="bi bi-bar-chart-fill"></i>
+    Minggu {{ minggu }} — {{ bulan_nama }}
+  </h2>
+  <p style="font-size:13px; color:var(--muted); margin:-8px 0 16px;">
+    {{ date_start }} s/d {{ date_end }}
+  </p>
+
+  <canvas id="mingguChart" height="180"></canvas>
+
+  <div class="minggu-total">
+    <span>Total Pengeluaran</span>
+    <strong class="expense">Rp {{ total | rupiah }}</strong>
+  </div>
+</div>
+
+<!-- Detail per hari -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-list-ul"></i> Detail Per Hari</h2>
+
+  {% set max_keluar = data | map(attribute='keluar') | max %}
+
+  {% for d in data %}
+  <div class="minggu-row {% if d.keluar == max_keluar and d.keluar > 0 %}minggu-row--peak{% endif %}">
+    <div class="minggu-day-wrap">
+      <span class="minggu-hari">{{ d.hari }}</span>
+      <span class="minggu-tgl">{{ d.tanggal[8:] }}</span>
+    </div>
+    <div class="minggu-bars">
+      {% if d.keluar > 0 %}
+      <div class="minggu-bar-row">
+        <span class="minggu-bar-label">Keluar</span>
+        <div class="minggu-bar-wrap">
+          <div class="minggu-bar keluar-bar"
+               style="width:{% if max_keluar > 0 %}{{ (d.keluar / max_keluar * 100)|round }}{% else %}0{% endif %}%">
+          </div>
+        </div>
+        <span class="minggu-bar-val expense">Rp {{ d.keluar | rupiah }}</span>
+      </div>
+      {% endif %}
+      {% if d.masuk > 0 %}
+      <div class="minggu-bar-row">
+        <span class="minggu-bar-label">Masuk</span>
+        <div class="minggu-bar-wrap">
+          <div class="minggu-bar masuk-bar"
+               style="width:{% if max_keluar > 0 %}{{ (d.masuk / max_keluar * 100)|round }}{% else %}0{% endif %}%">
+          </div>
+        </div>
+        <span class="minggu-bar-val income">Rp {{ d.masuk | rupiah }}</span>
+      </div>
+      {% endif %}
+      {% if d.keluar == 0 and d.masuk == 0 %}
+      <span style="font-size:13px; color:var(--muted)">Tidak ada transaksi</span>
+      {% endif %}
+    </div>
+    {% if d.keluar == max_keluar and d.keluar > 0 %}
+    <span class="peak-badge-inline">🔥</span>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels  = {{ chart_labels  | tojson }};
+const keluar  = {{ chart_keluar  | tojson }};
+const masuk   = {{ chart_masuk   | tojson }};
+
+new Chart(document.getElementById("mingguChart"), {
+  type: "bar",
+  data: {
+    labels,
+    datasets: [
+      { label: "Pengeluaran", data: keluar, backgroundColor: "#ef4444", borderRadius: 8 },
+      { label: "Pemasukan",   data: masuk,  backgroundColor: "#10b981", borderRadius: 8 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: "bottom" } },
+    scales: {
+      x: { stacked: false },
+      y: { beginAtZero: true, ticks: { callback: v => "Rp " + v.toLocaleString("id") } }
+    }
+  }
+});
+</script>
+{% endblock %}

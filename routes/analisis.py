@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect
+from flask import Blueprint, render_template, session, redirect, request
 from database.db import (
     ambil_pengeluaran_harian_minggu,
     ambil_tren_harian,
@@ -7,6 +7,7 @@ from database.db import (
     ambil_top_transaksi,
     ambil_pengeluaran_per_kategori,
     ambil_ringkasan_bulanan,
+    ambil_pengeluaran_per_minggu
 )
 from datetime import datetime
 import calendar
@@ -82,4 +83,57 @@ def halaman_analisis():
         kategori_bulan=kategori_bulan,
         total_kategori=total_kategori,
         ringkasan_bulanan=ringkasan_bulanan,
+    )
+
+@analisis.route("/analisis/minggu")
+def analisis_minggu():
+    if "login" not in session:
+        return redirect("/login")
+
+    from datetime import datetime
+    import calendar
+
+    # Bulan yang dipilih (default bulan ini)
+    bulan = request.args.get("bulan", datetime.now().strftime("%Y-%m"))
+    minggu = int(request.args.get("minggu", 1))
+
+    tahun, bln = map(int, bulan.split('-'))
+    jumlah_hari = calendar.monthrange(tahun, bln)[1]
+    bulan_nama = datetime(tahun, bln, 1).strftime("%B %Y")
+
+    # Hitung jumlah minggu dalam bulan ini
+    jumlah_minggu = min(4, (jumlah_hari + 6) // 7)
+
+    data, total, date_start, date_end = ambil_pengeluaran_per_minggu(bulan, minggu)
+
+    # Label minggu
+    nama_bulan_list = ['','Jan','Feb','Mar','Apr','Mei','Jun',
+                       'Jul','Agt','Sep','Okt','Nov','Des']
+    minggu_options = []
+    start = 1
+    for w in range(1, jumlah_minggu + 1):
+        end = min(start + 6, jumlah_hari)
+        minggu_options.append({
+            "num": w,
+            "label": f"Minggu {w}  ({start} – {end} {nama_bulan_list[bln]})"
+        })
+        start = end + 1
+
+    chart_labels  = [d["hari"] + " " + d["tanggal"][8:] for d in data]
+    chart_keluar  = [d["keluar"] for d in data]
+    chart_masuk   = [d["masuk"]  for d in data]
+
+    return render_template(
+        "analisis_minggu.html",
+        bulan=bulan,
+        bulan_nama=bulan_nama,
+        minggu=minggu,
+        minggu_options=minggu_options,
+        data=data,
+        total=total,
+        date_start=date_start,
+        date_end=date_end,
+        chart_labels=chart_labels,
+        chart_keluar=chart_keluar,
+        chart_masuk=chart_masuk,
     )
