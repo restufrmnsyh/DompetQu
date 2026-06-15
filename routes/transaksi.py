@@ -4,7 +4,8 @@ from database.db import (
     hitung_ringkasan, ambil_pengeluaran_per_kategori, ambil_kategori,
     ambil_ringkasan_bulanan, edit_transaksi, ambil_transaksi_by_id, ambil_statistik_dashboard, ambil_insight
 )
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
 
 transaksi = Blueprint("transaksi", __name__)
 
@@ -111,7 +112,8 @@ def tambah():
         return redirect("/")
 
     kategori = ambil_kategori()
-    today = datetime.now().strftime("%Y-%m-%d")
+    WIB = timezone(timedelta(hours=7))
+    today = datetime.now(WIB).strftime("%Y-%m-%d")
     return render_template("tambah.html", kategori=kategori, today=today)
 
 
