@@ -141,5 +141,5 @@ def edit(id):
 def hapus(id):
     if "login" not in session:
         return redirect("/login")
-    hapus_transaksi(id)
+    hapus_transaksi(session["user_id"],id)
     return redirect("/")
