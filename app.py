@@ -7,6 +7,8 @@ from routes.auth import auth
 from routes.kategori import kategori
 from routes.analisis import analisis
 
+from routes.perbandingan import perbandingan
+
 from dotenv import load_dotenv
 import os
 
@@ -23,6 +25,7 @@ app.register_blueprint(keuangan)
 app.register_blueprint(auth)
 app.register_blueprint(kategori)
 app.register_blueprint(analisis)
+app.register_blueprint(perbandingan)
 
 init_db()
 

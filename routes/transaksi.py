@@ -4,7 +4,7 @@ from database.db import (
     hitung_ringkasan, ambil_pengeluaran_per_kategori, ambil_kategori,
     ambil_ringkasan_bulanan, edit_transaksi, ambil_transaksi_by_id, ambil_statistik_dashboard, ambil_insight
 )
-from datetime import datetime, timezone, timedelta
+from utils.waktu import sekarang_wib
 
 
 transaksi = Blueprint("transaksi", __name__)
@@ -51,7 +51,7 @@ def dashboard():
     bulan_pemasukan = [item[1] for item in reversed(ringkasan_bulanan)]
     bulan_pengeluaran = [item[2] for item in reversed(ringkasan_bulanan)]
 
-    bulan_ini = datetime.now().strftime("%Y-%m")
+    bulan_ini = sekarang_wib().strftime("%Y-%m")
 
     (
         total_transaksi,
@@ -94,7 +94,7 @@ def tambah():
         return redirect("/login")
 
     if request.method == "POST":
-        tanggal = datetime.now().strftime("%Y-%m-%d")
+        tanggal = sekarang_wib().strftime("%Y-%m-%d")
 
         jenis = request.form["jenis"]
         kategori = request.form["kategori"]
@@ -111,9 +111,8 @@ def tambah():
         )
         return redirect("/")
 
-    kategori = ambil_kategori()
-    WIB = timezone(timedelta(hours=7))
-    today = datetime.now(WIB).strftime("%Y-%m-%d")
+    kategori = ambil_kategori(session["user_id"])
+    today = sekarang_wib().strftime("%Y-%m-%d")
     return render_template("tambah.html", kategori=kategori, today=today)
 
 
@@ -128,13 +127,13 @@ def edit(id):
         kategori = request.form["kategori"]
         nominal = int(request.form["nominal"])
         catatan = request.form.get("catatan", "")
-        edit_transaksi(id, tanggal, jenis, kategori, nominal, catatan)
+        edit_transaksi(session["user_id"], id, tanggal, jenis, kategori, nominal, catatan)
         return redirect("/")
 
-    data = ambil_transaksi_by_id(id)
+    data = ambil_transaksi_by_id(session["user_id"], id)
     if not data:
         return redirect("/")
-    kategori = ambil_kategori()
+    kategori = ambil_kategori(session["user_id"])
     return render_template("edit.html", t=data, kategori=kategori)
 
 

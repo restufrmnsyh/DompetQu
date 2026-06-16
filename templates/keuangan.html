@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% block title %}Keuangan — DompetQu{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1><i class="bi bi-wallet2"></i> Keuangan</h1>
+</div>
+
+<!-- ===================== BUDGET ===================== -->
+<div class="section-label">
+  <i class="bi bi-cash-stack"></i> Budget Bulanan
+</div>
+
+<div class="card">
+  <form method="POST" action="/keuangan">
+    <input type="hidden" name="form_type" value="budget">
+    <div class="form-row-2">
+      <div class="form-group">
+        <label><i class="bi bi-calendar3"></i> Bulan</label>
+        <input type="month" name="bulan"
+               value="{{ budget[1] if budget else '' }}" required>
+      </div>
+      <div class="form-group">
+        <label><i class="bi bi-currency-dollar"></i> Jumlah Budget (Rp)</label>
+        <input type="number" name="jumlah_budget"
+               value="{{ budget[2] if budget else '' }}" min="0"
+               placeholder="0" required>
+      </div>
+    </div>
+    <button class="btn btn-full"><i class="bi bi-floppy2-fill"></i> Simpan Budget</button>
+  </form>
+</div>
+
+{% if budget %}
+<div class="card keuangan-status-card">
+  <div class="keuangan-status-header">
+    <div>
+      <div class="keuangan-status-title">Status Budget</div>
+      <div class="keuangan-status-sub">{{ budget[1] }}</div>
+    </div>
+    <div class="keuangan-status-badge
+      {% if status == 'over' %}badge-danger
+      {% elif status == 'warning' %}badge-warning
+      {% else %}badge-safe{% endif %}">
+      {% if status == 'over' %}
+        <i class="bi bi-exclamation-triangle-fill"></i> Terlampaui
+      {% elif status == 'warning' %}
+        <i class="bi bi-exclamation-circle-fill"></i> Hampir Habis
+      {% else %}
+        <i class="bi bi-check-circle-fill"></i> Aman
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="keuangan-progress-section">
+    <div class="keuangan-progress-bar">
+      <div class="keuangan-progress-fill
+        {% if status == 'over' %}kpf-over
+        {% elif status == 'warning' %}kpf-warning
+        {% else %}kpf-safe{% endif %}"
+        style="width: {{ [persentase, 100] | min }}%;">
+      </div>
+    </div>
+    <div class="keuangan-progress-pct">{{ persentase | round(1) }}%</div>
+  </div>
+
+  <div class="keuangan-3col">
+    <div class="keuangan-col">
+      <i class="bi bi-wallet2 keuangan-col-icon" style="color:#10b981"></i>
+      <div class="keuangan-col-label">Budget</div>
+      <div class="keuangan-col-val">Rp {{ budget[2] | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-arrow-down-circle-fill keuangan-col-icon" style="color:#ef4444"></i>
+      <div class="keuangan-col-label">Terpakai</div>
+      <div class="keuangan-col-val expense">Rp {{ pengeluaran | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-piggy-bank-fill keuangan-col-icon" style="color:#3b82f6"></i>
+      <div class="keuangan-col-label">Sisa</div>
+      <div class="keuangan-col-val
+        {% if budget[2] - pengeluaran < 0 %}expense{% else %}income{% endif %}">
+        Rp {{ (budget[2] - pengeluaran) | rupiah }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- ===================== TARGET ===================== -->
+<div class="section-label" style="margin-top:8px">
+  <i class="bi bi-bullseye"></i> Target Tabungan
+</div>
+
+<div class="card">
+  <form method="POST" action="/keuangan">
+    <input type="hidden" name="form_type" value="target">
+    <div class="form-group">
+      <label><i class="bi bi-tag-fill"></i> Nama Target</label>
+      <input type="text" name="nama_target"
+             placeholder="Contoh: Beli Motor, Liburan Bali..."
+             value="{{ target[1] if target else '' }}" required>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label><i class="bi bi-bullseye"></i> Target Dana (Rp)</label>
+        <input type="number" name="target_nominal" placeholder="0"
+               value="{{ target[2] if target else '' }}" min="0" required>
+      </div>
+      <div class="form-group">
+        <label><i class="bi bi-piggy-bank"></i> Terkumpul (Rp)</label>
+        <input type="number" name="nominal_terkumpul" placeholder="0"
+               value="{{ target[3] if target else '' }}" min="0" required>
+      </div>
+    </div>
+    <button class="btn btn-full"><i class="bi bi-floppy2-fill"></i> Simpan Target</button>
+  </form>
+</div>
+
+{% if target %}
+<div class="card keuangan-status-card">
+  <div class="keuangan-status-header">
+    <div>
+      <div class="keuangan-status-title">{{ target[1] }}</div>
+      <div class="keuangan-status-sub">Target Tabungan</div>
+    </div>
+    <div class="keuangan-status-badge
+      {% if progress >= 100 %}badge-safe
+      {% elif progress >= 50 %}badge-warning
+      {% else %}badge-info{% endif %}">
+      {% if progress >= 100 %}
+        <i class="bi bi-trophy-fill"></i> Tercapai!
+      {% elif progress >= 75 %}
+        <i class="bi bi-fire"></i> Hampir!
+      {% elif progress >= 50 %}
+        <i class="bi bi-rocket-takeoff-fill"></i> Setengah
+      {% else %}
+        <i class="bi bi-hourglass-split"></i> On Track
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="keuangan-progress-section">
+    <div class="keuangan-progress-bar">
+      <div class="keuangan-progress-fill
+        {% if progress >= 100 %}kpf-done{% else %}kpf-safe{% endif %}"
+        style="width: {{ [progress, 100] | min }}%;">
+      </div>
+    </div>
+    <div class="keuangan-progress-pct">{{ "%.1f" | format(progress) }}%</div>
+  </div>
+
+  <div class="keuangan-3col">
+    <div class="keuangan-col">
+      <i class="bi bi-bullseye keuangan-col-icon" style="color:#8b5cf6"></i>
+      <div class="keuangan-col-label">Target</div>
+      <div class="keuangan-col-val">Rp {{ target[2] | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-piggy-bank-fill keuangan-col-icon" style="color:#10b981"></i>
+      <div class="keuangan-col-label">Terkumpul</div>
+      <div class="keuangan-col-val income">Rp {{ target[3] | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-dash-circle-fill keuangan-col-icon" style="color:#f59e0b"></i>
+      <div class="keuangan-col-label">Kurang</div>
+      <div class="keuangan-col-val
+        {% if target[2] - target[3] <= 0 %}income{% else %}expense{% endif %}">
+        {% if target[2] - target[3] <= 0 %}
+          Lunas 🎉
+        {% else %}
+          Rp {{ (target[2] - target[3]) | rupiah }}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {% if progress >= 100 %}
+  <div class="alert alert-success"><i class="bi bi-trophy-fill"></i> Selamat! Target tabungan sudah tercapai!</div>
+  {% elif progress >= 75 %}
+  <div class="alert alert-info"><i class="bi bi-fire"></i> Hampir sampai! Terus semangat menabung!</div>
+  {% elif progress >= 50 %}
+  <div class="alert alert-info"><i class="bi bi-rocket-takeoff-fill"></i> Sudah setengah jalan! Pertahankan!</div>
+  {% endif %}
+</div>
+{% endif %}
+
+{% endblock %}

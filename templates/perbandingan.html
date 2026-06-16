@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+{% block title %}Perbandingan — DompetQu{% endblock %}
+
+{% block content %}
+
+<!-- Filter Bulan -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-sliders"></i> Pilih Bulan</h2>
+  <form method="GET" action="/perbandingan" class="pbn-filter">
+    <div class="pbn-filter-row">
+      <div class="pbn-filter-item">
+        <label>Bulan Pertama</label>
+        <input type="month" name="bulan1" value="{{ bulan1 }}" class="filter-input" style="width:100%">
+      </div>
+      <div class="pbn-vs">VS</div>
+      <div class="pbn-filter-item">
+        <label>Bulan Kedua</label>
+        <input type="month" name="bulan2" value="{{ bulan2 }}" class="filter-input" style="width:100%">
+      </div>
+    </div>
+    <button type="submit" class="btn btn-full" style="margin-top:12px">
+      <i class="bi bi-arrow-left-right"></i> Bandingkan
+    </button>
+  </form>
+</div>
+
+<!-- Ringkasan -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-bar-chart-fill"></i> Ringkasan</h2>
+
+  <div class="pbn-summary-head">
+    <span></span>
+    <span class="pbn-col-label">{{ label1 }}</span>
+    <span class="pbn-col-label">{{ label2 }}</span>
+  </div>
+
+  <div class="pbn-summary-row">
+    <span class="pbn-row-label"><i class="bi bi-graph-up-arrow"></i> Pemasukan</span>
+    <span class="pbn-val income">{{ p1 | rupiah }}</span>
+    <span class="pbn-val income">{{ p2 | rupiah }}</span>
+  </div>
+  <div class="pbn-summary-row">
+    <span class="pbn-row-label"><i class="bi bi-graph-down-arrow"></i> Pengeluaran</span>
+    <span class="pbn-val expense">{{ e1 | rupiah }}</span>
+    <span class="pbn-val expense">{{ e2 | rupiah }}</span>
+  </div>
+  <div class="pbn-summary-row pbn-summary-total">
+    <span class="pbn-row-label">💰 Sisa</span>
+    <span class="pbn-val {% if p1-e1 >= 0 %}income{% else %}expense{% endif %}">
+      {{ (p1 - e1) | rupiah }}
+    </span>
+    <span class="pbn-val {% if p2-e2 >= 0 %}income{% else %}expense{% endif %}">
+      {{ (p2 - e2) | rupiah }}
+    </span>
+  </div>
+
+  <!-- Selisih total pengeluaran -->
+  {% set diff_e = e1 - e2 %}
+  {% if diff_e > 0 %}
+  <div class="alert alert-warning" style="margin-top:12px">
+    📈 Pengeluaran <b>{{ label1 }}</b> lebih tinggi
+    <b>Rp {{ diff_e | rupiah }}</b> dari {{ label2 }}
+  </div>
+  {% elif diff_e < 0 %}
+  <div class="alert alert-success" style="margin-top:12px">
+    📉 Pengeluaran <b>{{ label1 }}</b> lebih rendah
+    <b>Rp {{ (diff_e * -1) | rupiah }}</b> dari {{ label2 }} 🎉
+  </div>
+  {% else %}
+  <div class="alert alert-info" style="margin-top:12px">
+    Pengeluaran kedua bulan sama.
+  </div>
+  {% endif %}
+</div>
+
+<!-- Chart -->
+{% if komparasi %}
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-bar-chart-steps"></i> Grafik Per Kategori</h2>
+  <canvas id="pbnChart" height="220"></canvas>
+</div>
+
+<!-- Tabel perbandingan -->
+<div class="card">
+  <h2 class="card-title"><i class="bi bi-table"></i> Detail Per Kategori</h2>
+
+  <div class="pbn-table-head">
+    <span>Kategori</span>
+    <span>{{ label1 }}</span>
+    <span>{{ label2 }}</span>
+    <span>Selisih</span>
+  </div>
+
+  {% for k in komparasi %}
+  {% set naik = k.selisih > 0 %}
+  {% set turun = k.selisih < 0 %}
+  <div class="pbn-table-row">
+    <div class="pbn-kat-wrap">
+      <span class="pbn-kat-name">{{ k.kategori }}</span>
+      {% if naik %}
+      <span class="pbn-trend trend-up">▲ {{ k.pct }}%</span>
+      {% elif turun %}
+      <span class="pbn-trend trend-down">▼ {{ (k.pct * -1) | round(1) }}%</span>
+      {% else %}
+      <span class="pbn-trend trend-flat">— 0%</span>
+      {% endif %}
+    </div>
+    <span class="pbn-tval">{{ k.val1 | rupiah }}</span>
+    <span class="pbn-tval muted-val">{{ k.val2 | rupiah }}</span>
+    <span class="pbn-tval {% if naik %}expense{% elif turun %}income{% endif %}">
+      {% if naik %}+{% endif %}{{ k.selisih | rupiah }}
+    </span>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card">
+  <div class="empty-state">
+    <div class="empty-icon">📊</div>
+    <p>Tidak ada data pengeluaran untuk kedua bulan yang dipilih.</p>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const labels = {{ chart_labels | tojson }};
+const val1   = {{ chart_val1   | tojson }};
+const val2   = {{ chart_val2   | tojson }};
+const label1 = {{ label1 | tojson }};
+const label2 = {{ label2 | tojson }};
+
+if (labels.length > 0) {
+  new Chart(document.getElementById("pbnChart"), {
+    type: "bar",
+    data: {
+      labels,
+      datasets: [
+        { label: label1, data: val1, backgroundColor: "#10b981", borderRadius: 6 },
+        { label: label2, data: val2, backgroundColor: "#94a3b8", borderRadius: 6 }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { position: "bottom" } },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { callback: v => "Rp " + v.toLocaleString("id") }
+        }
+      }
+    }
+  });
+}
+</script>
+{% endblock %}

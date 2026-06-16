@@ -128,11 +128,11 @@ h1, h2, h3 { margin: 0 0 8px; }
   align-items: center;
   gap: 3px;
   color: var(--muted);
-  font-size: 11px;
-  padding: 6px 12px;
+  font-size: 10px;        /* dikecilkan dari 11px */
+  padding: 6px 6px;       /* dikecilkan dari 6px 12px */
   border-radius: var(--radius-sm);
   transition: color .2s;
-  min-width: 56px;
+  min-width: 44px;        /* dikecilkan dari 56px */
 }
 .bottom-nav a .nav-icon { font-size: 20px; }
 .bottom-nav a.active, .bottom-nav a:hover { color: var(--primary); }
@@ -1609,3 +1609,237 @@ body.dark .minggu-opt input:checked + .minggu-opt-label {
 }
 .analisis-shortcut-title { font-weight: 700; font-size: 15px; }
 .analisis-shortcut-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* ============================================================
+   PERBANDINGAN
+   ============================================================ */
+
+.pbn-filter { }
+.pbn-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pbn-filter-item { flex: 1; }
+.pbn-filter-item label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.pbn-vs {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--muted);
+  flex-shrink: 0;
+  padding-top: 20px;
+}
+
+.pbn-summary-head {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.pbn-col-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: right;
+}
+
+.pbn-summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.pbn-summary-total {
+  border-bottom: none;
+  padding-top: 12px;
+  font-weight: 700;
+}
+.pbn-row-label { font-size: 13px; font-weight: 500; }
+.pbn-val { font-size: 13px; font-weight: 700; text-align: right; }
+
+/* Tabel kategori */
+.pbn-table-head {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 6px;
+  padding: 0 0 10px;
+  border-bottom: 2px solid var(--border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.pbn-table-head span:not(:first-child) { text-align: right; }
+
+.pbn-table-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 6px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.pbn-table-row:last-child { border-bottom: none; }
+
+.pbn-kat-wrap { display: flex; flex-direction: column; gap: 3px; }
+.pbn-kat-name { font-size: 13px; font-weight: 600; }
+.pbn-trend {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  width: fit-content;
+}
+.trend-up   { background: #fee2e2; color: #991b1b; }
+.trend-down { background: #d1fae5; color: #065f46; }
+.trend-flat { background: var(--border); color: var(--muted); }
+
+.pbn-tval { font-size: 12px; font-weight: 600; text-align: right; }
+.muted-val { color: var(--muted); font-weight: 400; }
+
+/* Section divider */
+.section-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 0;
+}
+
+/* ============================================================
+   SECTION LABEL
+   ============================================================ */
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .6px;
+  padding: 0 4px;
+  margin-bottom: 10px;
+}
+
+/* ============================================================
+   FORM ROW 2 KOLOM
+   ============================================================ */
+
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ============================================================
+   KEUANGAN STATUS CARD
+   ============================================================ */
+
+.keuangan-status-card { }
+
+.keuangan-status-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.keuangan-status-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+.keuangan-status-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+.keuangan-status-badge {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.badge-safe    { background: #d1fae5; color: #065f46; }
+.badge-warning { background: #fef3c7; color: #92400e; }
+.badge-danger  { background: #fee2e2; color: #991b1b; }
+.badge-info    { background: #dbeafe; color: #1e40af; }
+
+body.dark .badge-safe    { background: #064e3b; color: #6ee7b7; }
+body.dark .badge-warning { background: #78350f; color: #fcd34d; }
+body.dark .badge-danger  { background: #7f1d1d; color: #fca5a5; }
+body.dark .badge-info    { background: #1e3a5f; color: #93c5fd; }
+
+.keuangan-progress-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.keuangan-progress-bar {
+  flex: 1;
+  height: 10px;
+  background: var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+}
+.keuangan-progress-fill {
+  height: 100%;
+  border-radius: 20px;
+  transition: width .6s ease;
+}
+.kpf-safe    { background: #10b981; }
+.kpf-warning { background: #f59e0b; }
+.kpf-over    { background: #ef4444; }
+.kpf-done    { background: #8b5cf6; }
+.keuangan-progress-pct {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--muted);
+  width: 40px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.keuangan-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.keuangan-col {
+  background: var(--bg);
+  border-radius: var(--radius-sm);
+  padding: 12px 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.keuangan-col-icon { font-size: 20px; }
+.keuangan-col-label {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .3px;
+}
+.keuangan-col-val {
+  font-size: 13px;
+  font-weight: 700;
+  word-break: break-all;
+}

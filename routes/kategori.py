@@ -29,11 +29,16 @@ def kelola_kategori():
 
         nama = request.form["nama"]
 
-        tambah_kategori(nama)
+        tambah_kategori(
+            session["user_id"],
+            nama
+        )
 
         return redirect("/kategori")
 
-    data = ambil_kategori()
+    data = ambil_kategori(
+        session["user_id"]
+    )
 
     return render_template(
         "kategori.html",
@@ -46,16 +51,22 @@ def hapus(id):
     if "login" not in session:
         return redirect("/login")
 
-    data = ambil_kategori_by_id(id)
-
+    data = ambil_kategori_by_id(
+    session["user_id"],
+    id
+)
     if data:
 
-        nama_kategori = data[1]
+        nama_kategori = data[2]  # kemungkinan berubah karena ada user_id
 
-        if kategori_dipakai(nama_kategori):
+        if kategori_dipakai(
+            session["user_id"],
+            nama_kategori
+        ):
 
             return redirect("/kategori")
 
-    hapus_kategori(id)
-
-    return redirect("/kategori")
+    hapus_kategori(
+        session["user_id"],
+        id
+    )
