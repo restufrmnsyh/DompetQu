@@ -52,21 +52,24 @@ def hapus(id):
         return redirect("/login")
 
     data = ambil_kategori_by_id(
-    session["user_id"],
-    id
-)
-    if data:
+        session["user_id"],
+        id
+    )
 
-        nama_kategori = data[2]  # kemungkinan berubah karena ada user_id
+    if not data:
+        return redirect("/kategori")
 
-        if kategori_dipakai(
-            session["user_id"],
-            nama_kategori
-        ):
+    nama_kategori = data[1]
 
-            return redirect("/kategori")
+    if kategori_dipakai(
+        session["user_id"],
+        nama_kategori
+    ):
+        return redirect("/kategori")
 
     hapus_kategori(
         session["user_id"],
         id
     )
+
+    return redirect("/kategori")
