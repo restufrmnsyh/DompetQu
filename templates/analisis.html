@@ -242,13 +242,17 @@
 </div>
 
 <!-- Modal Detail Hari -->
-<div id="dayModal" class="modal-overlay">
-  <div class="modal-box day-modal-box">
+<div id="dayModal" class="day-modal-overlay">
+  <div class="day-modal-box">
 
+    <!-- Handle bar (mobile) -->
+    <div class="day-modal-handle"></div>
+
+    <!-- Header -->
     <div class="day-modal-header">
-      <div>
+      <div class="day-modal-header-text">
         <div class="day-modal-title" id="dayModalTitle">—</div>
-        <div class="day-modal-sub" id="dayModalSub">Transaksi hari ini</div>
+        <div class="day-modal-sub" id="dayModalSub">Memuat...</div>
       </div>
       <button class="day-modal-close" onclick="closeDayModal()">
         <i class="bi bi-x-lg"></i>
@@ -346,137 +350,104 @@ if (trenLabels.length > 0) {
 
 <script>
 
-  // ===== DAY MODAL =====
+// ===== DAY MODAL =====
 function formatRupiah(n) {
   return "Rp " + Number(n).toLocaleString("id");
 }
 
 async function showDayModal(tanggal) {
-  // Format tanggal untuk judul
   const d = new Date(tanggal + "T00:00:00");
-  const hariNama = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
-  const bulanNama = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"];
-  const judulTgl = `${hariNama[d.getDay()]}, ${d.getDate()} ${bulanNama[d.getMonth()]} ${d.getFullYear()}`;
+  const hariNama  = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulanNama = ["Januari","Februari","Maret","April","Mei","Juni",
+                     "Juli","Agustus","September","Oktober","November","Desember"];
+  const judulTgl  = `${hariNama[d.getDay()]}, ${d.getDate()} ${bulanNama[d.getMonth()]} ${d.getFullYear()}`;
 
   document.getElementById("dayModalTitle").textContent = judulTgl;
+  document.getElementById("dayModalSub").textContent   = "Memuat...";
   document.getElementById("dayModalSummary").innerHTML = "";
-  document.getElementById("dayModalList").innerHTML = '<div class="day-modal-loading"><i class="bi bi-arrow-repeat"></i> Memuat...</div>';
+  document.getElementById("dayModalList").innerHTML    =
+    '<div class="day-modal-loading"><i class="bi bi-arrow-repeat"></i> Memuat...</div>';
   document.getElementById("dayModal").classList.add("show");
+  document.body.style.overflow = "hidden";
 
   try {
-    const res = await fetch(`/analisis/hari-data?tanggal=${tanggal}`);
+    const res  = await fetch(`/analisis/hari-data?tanggal=${tanggal}`);
     const data = await res.json();
 
-    const totalKeluar = data.filter(t => t.jenis === "Pengeluaran").reduce((s, t) => s + t.nominal, 0);
-    const totalMasuk  = data.filter(t => t.jenis === "Pemasukan").reduce((s, t) => s + t.nominal, 0);
-    const selisih = totalMasuk - totalKeluar;
-    let balanceClass = "summary-neutral";
-    let balanceTextClass = "";
+    const totalKeluar = data.filter(t => t.jenis === "Pengeluaran").reduce((s,t) => s + t.nominal, 0);
+    const totalMasuk  = data.filter(t => t.jenis === "Pemasukan").reduce((s,t)  => s + t.nominal, 0);
+    const selisih     = totalMasuk - totalKeluar;
 
-    if (selisih > 0) {
-      balanceClass = "summary-positive";
-      balanceTextClass = "balance-positive";
-    }
-    else if (selisih < 0) {
-      balanceClass = "summary-negative";
-      balanceTextClass = "balance-negative";
-    }
+    document.getElementById("dayModalSub").textContent =
+      `${data.length} transaksi`;
 
     // Summary
     document.getElementById("dayModalSummary").innerHTML = `
-<div class="day-summary-grid">
+      <div class="dms-grid">
+        <div class="dms-item dms-income">
+          <div class="dms-icon"><i class="bi bi-arrow-up-circle-fill"></i></div>
+          <div class="dms-label">Pemasukan</div>
+          <div class="dms-val income">${formatRupiah(totalMasuk)}</div>
+        </div>
+        <div class="dms-item dms-expense">
+          <div class="dms-icon"><i class="bi bi-arrow-down-circle-fill"></i></div>
+          <div class="dms-label">Pengeluaran</div>
+          <div class="dms-val expense">${formatRupiah(totalKeluar)}</div>
+        </div>
+        <div class="dms-item dms-balance">
+          <div class="dms-icon"><i class="bi bi-wallet2"></i></div>
+          <div class="dms-label">Selisih</div>
+          <div class="dms-val ${selisih >= 0 ? 'income' : 'expense'}">${formatRupiah(Math.abs(selisih))}</div>
+        </div>
+      </div>`;
 
-  <div class="day-summary-item">
-    <i class="bi bi-arrow-up-circle-fill"
-       style="color:#10b981"></i>
-    <div>
-      <div class="day-summary-label">
-        Pemasukan
-      </div>
-      <div class="day-summary-val income">
-        ${formatRupiah(totalMasuk)}
-      </div>
-    </div>
-  </div>
-
-  <div class="day-summary-item">
-    <i class="bi bi-arrow-down-circle-fill"
-       style="color:#ef4444"></i>
-    <div>
-      <div class="day-summary-label">
-        Pengeluaran
-      </div>
-      <div class="day-summary-val expense">
-        ${formatRupiah(totalKeluar)}
-      </div>
-    </div>
-  </div>
-
-  <div class="day-summary-item ${balanceClass}">
-    <i class="bi bi-wallet2"
-       style="color:#3b82f6"></i>
-    <div>
-      <div class="day-summary-label">
-        Selisih
-      </div>
-
-      <div class="day-summary-val ${balanceTextClass}">
-        ${selisih >= 0 ? '+' : '-'}
-        ${formatRupiah(Math.abs(selisih))}
-      </div>
-    </div>
-  </div>
-
-</div>
-`;
-
-    // List
     if (data.length === 0) {
       document.getElementById("dayModalList").innerHTML = `
         <div class="day-modal-empty">
           <i class="bi bi-inbox"></i>
           <p>Tidak ada transaksi</p>
+          <a href="/tambah" class="btn btn-sm">➕ Tambah</a>
         </div>`;
       return;
     }
 
-    const listHTML = data.map(t => `
-      <div class="day-tx-item">
-        <div class="day-tx-dot ${t.jenis === 'Pemasukan' ? 'dot-income' : 'dot-expense'}"></div>
-        <div class="day-tx-info">
-          <div class="day-tx-cat">${t.kategori}</div>
-          ${t.catatan ? `<div class="day-tx-note"><i class="bi bi-chat-left-text"></i> ${t.catatan}</div>` : ""}
-        </div>
-        <div class="day-tx-right">
-          <div class="day-tx-amount ${t.jenis === 'Pemasukan' ? 'income' : 'expense'}">
-            ${t.jenis === 'Pemasukan' ? '+' : '−'} ${formatRupiah(t.nominal)}
+    document.getElementById("dayModalList").innerHTML = data.map(t => `
+      <div class="dtx-item">
+        <div class="dtx-indicator ${t.jenis === 'Pemasukan' ? 'dtx-in' : 'dtx-out'}"></div>
+        <div class="dtx-body">
+          <div class="dtx-top">
+            <span class="dtx-kat">${t.kategori}</span>
+            <span class="dtx-amount ${t.jenis === 'Pemasukan' ? 'income' : 'expense'}">
+              ${t.jenis === 'Pemasukan' ? '+' : '−'} ${formatRupiah(t.nominal)}
+            </span>
           </div>
-          <div class="day-tx-actions">
-           <a href="/edit/${t.id}?from_calendar=${tanggal}"
-   class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i></a>
-            <a href="#" class="tx-btn tx-btn--del" onclick="confirmHapus(${t.id}); return false;"><i class="bi bi-trash3-fill"></i></a>
+          ${t.catatan ? `<div class="dtx-note"><i class="bi bi-chat-left-text"></i> ${t.catatan}</div>` : ""}
+          <div class="dtx-actions">
+            <a href="/edit/${t.id}" class="dtx-btn dtx-edit">
+              <i class="bi bi-pencil-fill"></i> Edit
+            </a>
+            <button onclick="confirmHapus(${t.id})" class="dtx-btn dtx-del">
+              <i class="bi bi-trash3-fill"></i> Hapus
+            </button>
           </div>
         </div>
-      </div>
-    `).join("");
-
-    document.getElementById("dayModalList").innerHTML = listHTML;
-    document.getElementById("dayModalSub").textContent =`${data.length} transaksi • ${formatRupiah(totalKeluar)} pengeluaran`;
+      </div>`).join("");
 
   } catch(e) {
-    document.getElementById("dayModalList").innerHTML = '<div class="day-modal-empty"><i class="bi bi-wifi-off"></i><p>Gagal memuat data</p></div>';
+    document.getElementById("dayModalList").innerHTML =
+      '<div class="day-modal-empty"><i class="bi bi-wifi-off"></i><p>Gagal memuat data</p></div>';
   }
 }
 
 function closeDayModal() {
   document.getElementById("dayModal").classList.remove("show");
+  document.body.style.overflow = "";
 }
 
 document.getElementById("dayModal").addEventListener("click", function(e) {
   if (e.target === this) closeDayModal();
 });
 
-// Hapus dari dalam modal
 function confirmHapus(id) {
   document.getElementById("confirmDeleteBtn").href = "/hapus/" + id;
   document.getElementById("deleteModal").classList.add("show");
