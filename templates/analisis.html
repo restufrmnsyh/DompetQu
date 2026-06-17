@@ -423,9 +423,8 @@ async function showDayModal(tanggal) {
           </div>
           ${t.catatan ? `<div class="dtx-note"><i class="bi bi-chat-left-text"></i> ${t.catatan}</div>` : ""}
           <div class="dtx-actions">
-            <a href="/edit/${t.id}" class="dtx-btn dtx-edit">
-              <i class="bi bi-pencil-fill"></i> Edit
-            </a>
+            <a href="/edit/${t.id}?from_calendar=${tanggal}"
+   class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i> Edit</a>
             <button onclick="confirmHapus(${t.id})" class="dtx-btn dtx-del">
               <i class="bi bi-trash3-fill"></i> Hapus
             </button>
