@@ -21,6 +21,7 @@ kategori = Blueprint(
 
 @kategori.route("/kategori", methods=["GET", "POST"])
 def kelola_kategori():
+    print("USER LOGIN:", session.get("user_id"))
 
     if "login" not in session:
         return redirect("/login")

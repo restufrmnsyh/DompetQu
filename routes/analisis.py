@@ -1,4 +1,7 @@
 from flask import Blueprint, render_template, session, redirect, request
+from flask import jsonify  # tambah di import
+
+
 from database.db import (
     ambil_pengeluaran_harian_minggu,
     ambil_tren_harian,
@@ -24,6 +27,7 @@ def halaman_analisis():
     if "login" not in session:
         return redirect("/login")
 
+    open_date = request.args.get("open_date")
     now = sekarang_wib()
 
     bulan_ini = now.strftime("%Y-%m")
@@ -151,7 +155,8 @@ def halaman_analisis():
         top_transaksi=top_transaksi,
         kategori_bulan=kategori_bulan,
         total_kategori=total_kategori,
-        ringkasan_bulanan=ringkasan_bulanan
+        ringkasan_bulanan=ringkasan_bulanan,
+        open_date=open_date
     )
 
 @analisis.route("/analisis/minggu")
@@ -261,33 +266,26 @@ def analisis_minggu():
         chart_masuk=chart_masuk
     )
 
-@analisis.route("/analisis/hari")
-def detail_hari():
+@analisis.route("/analisis/hari-data")
+def hari_data():
     if "login" not in session:
-        return redirect("/login")
-    
+        return jsonify([]), 401
+
     tanggal = request.args.get("tanggal", "")
     if not tanggal:
-        return redirect("/analisis")
-    
-    transaksi = ambil_semua_transaksi(session["user_id"], bulan=tanggal[:7])
-    # Filter by exact date
-    transaksi_hari = [t for t in transaksi if t[1] == tanggal]
-    
-    total_keluar = sum(t[4] for t in transaksi_hari if t[2] == "Pengeluaran")
-    total_masuk  = sum(t[4] for t in transaksi_hari if t[2] == "Pemasukan")
-    
-    from datetime import datetime
-    try:
-        tgl_fmt = datetime.strptime(tanggal, "%Y-%m-%d").strftime("%d %B %Y")
-    except:
-        tgl_fmt = tanggal
-    
-    return render_template(
-        "detail_hari.html",
-        tanggal=tanggal,
-        tgl_fmt=tgl_fmt,
-        transaksi=transaksi_hari,
-        total_keluar=total_keluar,
-        total_masuk=total_masuk,
-    )
+        return jsonify([])
+
+    from database.db import ambil_semua_transaksi
+    semua = ambil_semua_transaksi(session["user_id"],bulan=tanggal[:7])
+    hasil = [
+        {
+            "id": t[0],
+            "tanggal": t[1],
+            "jenis": t[2],
+            "kategori": t[3],
+            "nominal": t[4],
+            "catatan": t[5] or ""
+        }
+        for t in semua if t[1] == tanggal
+    ]
+    return jsonify(hasil)

@@ -94,7 +94,7 @@ def tambah():
         return redirect("/login")
 
     if request.method == "POST":
-        tanggal = sekarang_wib().strftime("%Y-%m-%d")
+        tanggal = request.form["tanggal"]
 
         jenis = request.form["jenis"]
         kategori = request.form["kategori"]
@@ -133,8 +133,10 @@ def edit(id):
     data = ambil_transaksi_by_id(session["user_id"], id)
     if not data:
         return redirect("/")
+    
+    from_calendar = request.args.get("from_calendar")
     kategori = ambil_kategori(session["user_id"])
-    return render_template("edit.html", t=data, kategori=kategori)
+    return render_template("edit.html", t=data, kategori=kategori, from_calendar=from_calendar)
 
 
 @transaksi.route("/hapus/<int:id>")

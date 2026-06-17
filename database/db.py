@@ -112,8 +112,12 @@ def init_db():
 
     kategori_default = ["Makanan", "Minuman", "Belanja", "BBM", "Transportasi", "Kesehatan", "Hiburan", "Gaji"]
     for k in kategori_default:
-        cursor.execute("INSERT OR IGNORE INTO kategori (nama) VALUES (?)", (k,))
+        cursor.execute("INSERT OR IGNORE INTO kategori (nama, user_id) VALUES (?, ?)", (k, 1))
 
+    cursor.execute("""
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_kategori_user
+    ON kategori(nama, user_id)
+    """)
     conn.commit()
     conn.close()
 
@@ -777,10 +781,12 @@ def reset_transaksi(user_id):
     conn.close()
 
 def tambah_user(username, password):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     try:
+
         cursor.execute("""
         INSERT INTO users (
             username,
@@ -792,13 +798,44 @@ def tambah_user(username, password):
             hash_password(password)
         ))
 
+        user_id = cursor.lastrowid
+
+        kategori_default = [
+            "Makanan",
+            "Minuman",
+            "Belanja",
+            "BBM",
+            "Transportasi",
+            "Kesehatan",
+            "Hiburan",
+            "Gaji"
+        ]
+
+        for k in kategori_default:
+
+            cursor.execute("""
+            INSERT INTO kategori (
+                nama,
+                user_id
+            )
+            VALUES (?, ?)
+            """, (
+                k,
+                user_id
+            ))
+
         conn.commit()
+
         berhasil = True
 
-    except:
+    except Exception as e:
+
+        print("ERROR REGISTER:", e)
+
         berhasil = False
 
     conn.close()
+
     return berhasil
 
 def ambil_pengeluaran_harian_minggu(user_id):

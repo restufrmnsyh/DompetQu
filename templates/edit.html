@@ -2,8 +2,13 @@
 {% block title %}Edit Transaksi — DompetQu{% endblock %}
 {% block content %}
 <div class="page-header">
-  <a href="/" class="back-btn">← Kembali</a>
-  <h1>✏️ Edit Transaksi</h1>
+  {% if from_calendar %}
+<a href="/analisis?open_date={{ from_calendar }}"
+   class="back-btn"><i class="bi bi-arrow-left-square"></i> Kembali</a>
+{% else %}
+<a href="/" class="back-btn"><i class="bi bi-arrow-left-square"></i> Kembali</a>
+{% endif %}
+  <h1><i class="bi bi-pencil-fill"></i> Edit Transaksi</h1>
 </div>
 <div class="card">
   <form method="POST">

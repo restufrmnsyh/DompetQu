@@ -142,26 +142,30 @@ d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993
 const saldoText = document.getElementById("saldoText");
 const toggleSaldo = document.getElementById("toggleSaldo");
 
-let visible = true;
-const saldoAsli = saldoText.innerText;
+if (saldoText && toggleSaldo) {
 
-toggleSaldo.addEventListener("click", () => {
+    let visible = true;
+    const saldoAsli = saldoText.innerText;
 
-    visible = !visible;
+    toggleSaldo.addEventListener("click", () => {
 
-    if (visible) {
+        visible = !visible;
 
-        saldoText.innerText = saldoAsli;
-        toggleSaldo.innerHTML = eyeSvg;
+        if (visible) {
 
-    } else {
+            saldoText.innerText = saldoAsli;
+            toggleSaldo.innerHTML = eyeSvg;
 
-        saldoText.innerText = "Rp ••••••••";
-        toggleSaldo.innerHTML = eyeSlashSvg;
+        } else {
 
-    }
+            saldoText.innerText = "Rp ••••••••";
+            toggleSaldo.innerHTML = eyeSlashSvg;
 
-});
+        }
+
+    });
+
+}
 
 </script>
 </body>

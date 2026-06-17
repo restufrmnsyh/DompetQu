@@ -155,7 +155,7 @@
            {% if nominal > 0 %}kal-clickable{% endif %}"
     title="{{ tgl }}: Rp {{ nominal | rupiah }}"
     {% if nominal > 0 %}
-    onclick="window.location='/analisis/hari?tanggal={{ bulan_ini }}-{{ '%02d' | format(tgl) }}'"
+    onclick="showDayModal('{{ bulan_ini }}-{{ '%02d' | format(tgl) }}')"
     {% endif %}
     style="background: {% if nominal == 0 %}var(--border){% elif pct < 25 %}#bbf7d0{% elif pct < 50 %}#4ade80{% elif pct < 80 %}#16a34a{% else %}#ef4444{% endif %};">
   <span class="kal-tgl">{{ tgl }}</span>
@@ -241,9 +241,81 @@
   {% endif %}
 </div>
 
+<!-- Modal Detail Hari -->
+<div id="dayModal" class="modal-overlay">
+  <div class="modal-box day-modal-box">
+
+    <div class="day-modal-header">
+      <div>
+        <div class="day-modal-title" id="dayModalTitle">—</div>
+        <div class="day-modal-sub" id="dayModalSub">Transaksi hari ini</div>
+      </div>
+      <button class="day-modal-close" onclick="closeDayModal()">
+        <i class="bi bi-x-lg"></i>
+      </button>
+    </div>
+
+    <!-- Ringkasan -->
+    <div class="day-modal-summary" id="dayModalSummary"></div>
+
+    <!-- List transaksi -->
+    <div class="day-modal-list" id="dayModalList">
+      <div class="day-modal-loading">
+        <i class="bi bi-arrow-repeat"></i> Memuat...
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Modal Hapus -->
+<div id="deleteModal" class="modal-overlay">
+
+  <div class="modal-box">
+
+    <div class="modal-icon-wrap">
+      <div class="modal-icon-circle">
+        <i class="bi bi-trash3-fill"></i>
+      </div>
+    </div>
+
+    <h3>Hapus transaksi?</h3>
+
+    <p>
+      Transaksi ini akan dihapus permanen
+      dan tidak dapat dikembalikan.
+    </p>
+
+    <div class="modal-actions">
+
+      <button
+        class="modal-btn modal-cancel"
+        onclick="closeDeleteModal()">
+
+        Batal
+
+      </button>
+
+      <a
+        id="confirmDeleteBtn"
+        href="#"
+        class="modal-btn modal-delete">
+
+        Hapus
+
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
 {% endblock %}
 
+
 {% block scripts %}
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 const trenLabels = {{ tren_labels | tojson }};
@@ -271,4 +343,168 @@ if (trenLabels.length > 0) {
   });
 }
 </script>
+
+<script>
+
+  // ===== DAY MODAL =====
+function formatRupiah(n) {
+  return "Rp " + Number(n).toLocaleString("id");
+}
+
+async function showDayModal(tanggal) {
+  // Format tanggal untuk judul
+  const d = new Date(tanggal + "T00:00:00");
+  const hariNama = ["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
+  const bulanNama = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agt","Sep","Okt","Nov","Des"];
+  const judulTgl = `${hariNama[d.getDay()]}, ${d.getDate()} ${bulanNama[d.getMonth()]} ${d.getFullYear()}`;
+
+  document.getElementById("dayModalTitle").textContent = judulTgl;
+  document.getElementById("dayModalSummary").innerHTML = "";
+  document.getElementById("dayModalList").innerHTML = '<div class="day-modal-loading"><i class="bi bi-arrow-repeat"></i> Memuat...</div>';
+  document.getElementById("dayModal").classList.add("show");
+
+  try {
+    const res = await fetch(`/analisis/hari-data?tanggal=${tanggal}`);
+    const data = await res.json();
+
+    const totalKeluar = data.filter(t => t.jenis === "Pengeluaran").reduce((s, t) => s + t.nominal, 0);
+    const totalMasuk  = data.filter(t => t.jenis === "Pemasukan").reduce((s, t) => s + t.nominal, 0);
+    const selisih = totalMasuk - totalKeluar;
+    let balanceClass = "summary-neutral";
+    let balanceTextClass = "";
+
+    if (selisih > 0) {
+      balanceClass = "summary-positive";
+      balanceTextClass = "balance-positive";
+    }
+    else if (selisih < 0) {
+      balanceClass = "summary-negative";
+      balanceTextClass = "balance-negative";
+    }
+
+    // Summary
+    document.getElementById("dayModalSummary").innerHTML = `
+<div class="day-summary-grid">
+
+  <div class="day-summary-item">
+    <i class="bi bi-arrow-up-circle-fill"
+       style="color:#10b981"></i>
+    <div>
+      <div class="day-summary-label">
+        Pemasukan
+      </div>
+      <div class="day-summary-val income">
+        ${formatRupiah(totalMasuk)}
+      </div>
+    </div>
+  </div>
+
+  <div class="day-summary-item">
+    <i class="bi bi-arrow-down-circle-fill"
+       style="color:#ef4444"></i>
+    <div>
+      <div class="day-summary-label">
+        Pengeluaran
+      </div>
+      <div class="day-summary-val expense">
+        ${formatRupiah(totalKeluar)}
+      </div>
+    </div>
+  </div>
+
+  <div class="day-summary-item ${balanceClass}">
+    <i class="bi bi-wallet2"
+       style="color:#3b82f6"></i>
+    <div>
+      <div class="day-summary-label">
+        Selisih
+      </div>
+
+      <div class="day-summary-val ${balanceTextClass}">
+        ${selisih >= 0 ? '+' : '-'}
+        ${formatRupiah(Math.abs(selisih))}
+      </div>
+    </div>
+  </div>
+
+</div>
+`;
+
+    // List
+    if (data.length === 0) {
+      document.getElementById("dayModalList").innerHTML = `
+        <div class="day-modal-empty">
+          <i class="bi bi-inbox"></i>
+          <p>Tidak ada transaksi</p>
+        </div>`;
+      return;
+    }
+
+    const listHTML = data.map(t => `
+      <div class="day-tx-item">
+        <div class="day-tx-dot ${t.jenis === 'Pemasukan' ? 'dot-income' : 'dot-expense'}"></div>
+        <div class="day-tx-info">
+          <div class="day-tx-cat">${t.kategori}</div>
+          ${t.catatan ? `<div class="day-tx-note"><i class="bi bi-chat-left-text"></i> ${t.catatan}</div>` : ""}
+        </div>
+        <div class="day-tx-right">
+          <div class="day-tx-amount ${t.jenis === 'Pemasukan' ? 'income' : 'expense'}">
+            ${t.jenis === 'Pemasukan' ? '+' : '−'} ${formatRupiah(t.nominal)}
+          </div>
+          <div class="day-tx-actions">
+           <a href="/edit/${t.id}?from_calendar=${tanggal}"
+   class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i></a>
+            <a href="#" class="tx-btn tx-btn--del" onclick="confirmHapus(${t.id}); return false;"><i class="bi bi-trash3-fill"></i></a>
+          </div>
+        </div>
+      </div>
+    `).join("");
+
+    document.getElementById("dayModalList").innerHTML = listHTML;
+    document.getElementById("dayModalSub").textContent =`${data.length} transaksi • ${formatRupiah(totalKeluar)} pengeluaran`;
+
+  } catch(e) {
+    document.getElementById("dayModalList").innerHTML = '<div class="day-modal-empty"><i class="bi bi-wifi-off"></i><p>Gagal memuat data</p></div>';
+  }
+}
+
+function closeDayModal() {
+  document.getElementById("dayModal").classList.remove("show");
+}
+
+document.getElementById("dayModal").addEventListener("click", function(e) {
+  if (e.target === this) closeDayModal();
+});
+
+// Hapus dari dalam modal
+function confirmHapus(id) {
+  document.getElementById("confirmDeleteBtn").href = "/hapus/" + id;
+  document.getElementById("deleteModal").classList.add("show");
+}
+function closeDeleteModal() {
+
+  document
+    .getElementById("deleteModal")
+    .classList.remove("show");
+
+}
+</script>
+
+<script>
+
+const openDate = {{ open_date | tojson }};
+
+if (openDate) {
+
+    window.addEventListener("load", () => {
+
+        showDayModal(openDate);
+
+    });
+
+}
+
+</script>
+
+
 {% endblock %}
