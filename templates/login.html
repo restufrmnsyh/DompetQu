@@ -1,52 +1,81 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login — DompetQu</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='css/style.css') }}"
-    />
-  </head>
-  <body class="login-body">
-    <div class="login-wrap">
-      <div class="login-brand">
-        <div class="login-logo">💰</div>
-        <h1>DompetQu</h1>
-        <p>Catat. Analisa. Hemat.</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — DompetQu</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+</head>
+<body class="auth-body">
+
+  <div class="auth-bg">
+    <div class="auth-blob b1"></div>
+    <div class="auth-blob b2"></div>
+    <div class="auth-blob b3"></div>
+  </div>
+
+  <div class="auth-wrap">
+
+    <div class="auth-brand">
+      <div class="auth-logo">💰</div>
+      <h1>DompetQu</h1>
+      <p>Catat. Analisa. Hemat.</p>
+    </div>
+
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <h2>Selamat Datang 👋</h2>
+        <p>Masuk ke akun DompetQu kamu</p>
       </div>
-      <div class="card">
-        <form method="POST">
-          <div class="form-group">
-            <label>Username</label>
-            <input
-              type="text"
-              name="username"
-              placeholder="Masukkan username"
-              required
-              autofocus
-            />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              placeholder="Masukkan password"
-              required
-            />
-          </div>
-          {% if pesan %}
-          <div class="alert-error">{{ pesan }}</div>
-          {% endif %}
-          <button class="btn btn-full">Masuk</button>
-          <div class="auth-footer">
-            Belum Punya Akun?
-            <a href="/register">Daftar Sekarang</a>
+
+      <form method="POST">
+        <div class="auth-input-group">
+          <span class="auth-input-icon"><i class="bi bi-person-fill"></i></span>
+          <input type="text" name="username" placeholder="Username" required autofocus>
         </div>
-        </form>
+
+        <div class="auth-input-group">
+          <span class="auth-input-icon"><i class="bi bi-lock-fill"></i></span>
+          <input type="password" name="password" id="passwordInput" placeholder="Password" required>
+          <button type="button" class="auth-eye-btn" onclick="togglePassword()">
+            <i class="bi bi-eye" id="eyeIcon"></i>
+          </button>
+        </div>
+
+        {% if pesan %}
+        <div class="auth-alert">
+          <i class="bi bi-exclamation-circle-fill"></i> {{ pesan }}
+        </div>
+        {% endif %}
+
+        <button class="auth-btn" type="submit">
+          <i class="bi bi-box-arrow-in-right"></i> Masuk
+        </button>
+      </form>
+
+      <div class="auth-divider"><span>atau</span></div>
+
+      <div class="auth-footer">
+        Belum punya akun?
+        <a href="/register">Daftar Sekarang →</a>
       </div>
     </div>
-  </body>
+
+  </div>
+
+  <script>
+  function togglePassword() {
+    const input = document.getElementById("passwordInput");
+    const icon  = document.getElementById("eyeIcon");
+    if (input.type === "password") {
+      input.type = "text";
+      icon.className = "bi bi-eye-slash";
+    } else {
+      input.type = "password";
+      icon.className = "bi bi-eye";
+    }
+  }
+  </script>
+</body>
 </html>

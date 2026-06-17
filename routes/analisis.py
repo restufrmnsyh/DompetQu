@@ -7,7 +7,8 @@ from database.db import (
     ambil_top_transaksi,
     ambil_pengeluaran_per_kategori,
     ambil_ringkasan_bulanan,
-    ambil_pengeluaran_per_minggu
+    ambil_pengeluaran_per_minggu,
+    ambil_semua_transaksi
 )
 
 from utils.waktu import sekarang_wib
@@ -258,4 +259,35 @@ def analisis_minggu():
         chart_labels=chart_labels,
         chart_keluar=chart_keluar,
         chart_masuk=chart_masuk
+    )
+
+@analisis.route("/analisis/hari")
+def detail_hari():
+    if "login" not in session:
+        return redirect("/login")
+    
+    tanggal = request.args.get("tanggal", "")
+    if not tanggal:
+        return redirect("/analisis")
+    
+    transaksi = ambil_semua_transaksi(session["user_id"], bulan=tanggal[:7])
+    # Filter by exact date
+    transaksi_hari = [t for t in transaksi if t[1] == tanggal]
+    
+    total_keluar = sum(t[4] for t in transaksi_hari if t[2] == "Pengeluaran")
+    total_masuk  = sum(t[4] for t in transaksi_hari if t[2] == "Pemasukan")
+    
+    from datetime import datetime
+    try:
+        tgl_fmt = datetime.strptime(tanggal, "%Y-%m-%d").strftime("%d %B %Y")
+    except:
+        tgl_fmt = tanggal
+    
+    return render_template(
+        "detail_hari.html",
+        tanggal=tanggal,
+        tgl_fmt=tgl_fmt,
+        transaksi=transaksi_hari,
+        total_keluar=total_keluar,
+        total_masuk=total_masuk,
     )

@@ -151,14 +151,18 @@
           {% set tgl = ns.cells[idx] %}
           {% set nominal = data_kalender.get(tgl, 0) %}
           {% set pct = (nominal / max_kal * 100) if max_kal > 0 else 0 %}
-          <td class="kal-td {% if nominal == max_kal and nominal > 0 %}kal-peak{% endif %}"
-              title="Tgl {{ tgl }}: Rp {{ nominal | rupiah }}"
-              style="background: {% if nominal == 0 %}var(--border){% elif pct < 25 %}#bbf7d0{% elif pct < 50 %}#4ade80{% elif pct < 80 %}#16a34a{% else %}#ef4444{% endif %};">
-            <span class="kal-tgl">{{ tgl }}</span>
-            {% if nominal > 0 %}
-            <span class="kal-nom">{{ (nominal / 1000) | round | int }}k</span>
-            {% endif %}
-          </td>
+          <td class="kal-td {% if nominal == max_kal and nominal > 0 %}kal-peak{% endif %}
+           {% if nominal > 0 %}kal-clickable{% endif %}"
+    title="{{ tgl }}: Rp {{ nominal | rupiah }}"
+    {% if nominal > 0 %}
+    onclick="window.location='/analisis/hari?tanggal={{ bulan_ini }}-{{ '%02d' | format(tgl) }}'"
+    {% endif %}
+    style="background: {% if nominal == 0 %}var(--border){% elif pct < 25 %}#bbf7d0{% elif pct < 50 %}#4ade80{% elif pct < 80 %}#16a34a{% else %}#ef4444{% endif %};">
+  <span class="kal-tgl">{{ tgl }}</span>
+  {% if nominal > 0 %}
+  <span class="kal-nom">{{ (nominal / 1000) | round | int }}k</span>
+  {% endif %}
+</td>
         {% else %}
           <td class="kal-td kal-empty-td"></td>
         {% endif %}

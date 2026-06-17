@@ -51,31 +51,27 @@ def login():
 
 @auth.route("/register", methods=["GET", "POST"])
 def register():
-
     pesan = ""
 
     if request.method == "POST":
-
         username = request.form["username"]
         password = request.form["password"]
+        konfirmasi = request.form.get("konfirmasi_password", "")
 
-        berhasil = tambah_user(
-            username,
-            password
-        )
-
-        if berhasil:
-
-            return redirect("/login")
-
+        if len(username) < 3:
+            pesan = "Username minimal 3 karakter!"
+        elif len(password) < 4:
+            pesan = "Password minimal 4 karakter!"
+        elif password != konfirmasi:
+            pesan = "Password dan konfirmasi password tidak cocok!"
         else:
+            berhasil = tambah_user(username, password)
+            if berhasil:
+                return redirect("/login")
+            else:
+                pesan = "Username sudah digunakan, coba yang lain!"
 
-            pesan = "Username sudah digunakan"
-
-    return render_template(
-        "register.html",
-        pesan=pesan
-    )
+    return render_template("register.html", pesan=pesan)
 
 @auth.route("/logout")
 def logout():

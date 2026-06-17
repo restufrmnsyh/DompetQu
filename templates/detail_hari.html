@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Detail {{ tgl_fmt }} — DompetQu{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <a href="/analisis" class="back-btn">← Kembali</a>
+  <h1><i class="bi bi-calendar-event"></i> {{ tgl_fmt }}</h1>
+</div>
+
+<!-- Ringkasan hari -->
+<div class="card">
+  <div class="keuangan-3col">
+    <div class="keuangan-col">
+      <i class="bi bi-arrow-up-circle-fill keuangan-col-icon" style="color:#10b981"></i>
+      <div class="keuangan-col-label">Pemasukan</div>
+      <div class="keuangan-col-val income">Rp {{ total_masuk | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-arrow-down-circle-fill keuangan-col-icon" style="color:#ef4444"></i>
+      <div class="keuangan-col-label">Pengeluaran</div>
+      <div class="keuangan-col-val expense">Rp {{ total_keluar | rupiah }}</div>
+    </div>
+    <div class="keuangan-col">
+      <i class="bi bi-wallet2 keuangan-col-icon" style="color:#3b82f6"></i>
+      <div class="keuangan-col-label">Selisih</div>
+      <div class="keuangan-col-val
+        {% if total_masuk - total_keluar >= 0 %}income{% else %}expense{% endif %}">
+        Rp {{ (total_masuk - total_keluar) | rupiah }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Daftar transaksi -->
+<div class="card">
+  <h2 class="card-title">
+    <i class="bi bi-list-ul"></i> Transaksi Hari Ini
+    <span class="tx-count">{{ transaksi | length }}</span>
+  </h2>
+
+  {% if transaksi %}
+    {% for t in transaksi %}
+    <div class="tx-card">
+      <div class="tx-left">
+        <div class="tx-cat">
+          <span class="tx-jenis-dot {% if t[2] == 'Pemasukan' %}dot-income{% else %}dot-expense{% endif %}"></span>
+          {{ t[3] }}
+        </div>
+        {% if t[5] %}
+        <div class="tx-note"><i class="bi bi-chat-left-text"></i> {{ t[5] }}</div>
+        {% endif %}
+        <div class="tx-date">{{ t[2] }}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amount {% if t[2] == 'Pemasukan' %}income-text{% else %}expense-text{% endif %}">
+          {% if t[2] == 'Pemasukan' %}+{% else %}−{% endif %} Rp {{ t[4] | rupiah }}
+        </div>
+        <div class="tx-actions">
+          <a href="/edit/{{ t[0] }}" class="tx-btn tx-btn--edit">
+            <i class="bi bi-pencil-fill"></i>
+          </a>
+          <a href="#" class="tx-btn tx-btn--del" onclick="showDeleteModal('{{ t[0] }}')">
+            <i class="bi bi-trash3-fill"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state" style="padding: 24px 0">
+      <div class="empty-icon">📭</div>
+      <p>Tidak ada transaksi pada tanggal ini.</p>
+      <a href="/tambah" class="btn">➕ Tambah Transaksi</a>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Modal hapus -->
+<div id="deleteModal" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon-wrap">
+      <div class="modal-sparkle s1">✦</div>
+      <div class="modal-sparkle s2">✦</div>
+      <div class="modal-sparkle s3">◆</div>
+      <div class="modal-sparkle s4">◆</div>
+      <div class="modal-icon-circle">
+        <i class="bi bi-trash3-fill"></i>
+        <div class="modal-warning-badge">⚠</div>
+      </div>
+    </div>
+    <h3>Hapus transaksi ini?</h3>
+    <p>Transaksi ini akan dihapus secara permanen<br>dan tidak dapat dikembalikan.</p>
+    <div class="modal-actions">
+      <button class="modal-btn modal-cancel" onclick="closeDeleteModal()">
+        <i class="bi bi-x-circle"></i> Batal
+      </button>
+      <a id="confirmDeleteBtn" href="#" class="modal-btn modal-delete">
+        <i class="bi bi-trash3-fill"></i> Hapus
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function showDeleteModal(id) {
+  document.getElementById("deleteModal").classList.add("show");
+  document.getElementById("confirmDeleteBtn").href = "/hapus/" + id;
+}
+function closeDeleteModal() {
+  document.getElementById("deleteModal").classList.remove("show");
+}
+document.getElementById("deleteModal").addEventListener("click", function(e) {
+  if (e.target === this) closeDeleteModal();
+});
+</script>
+{% endblock %}
