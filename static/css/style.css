@@ -2297,3 +2297,132 @@ body.dark .auth-alert {
 .day-modal-list{
   padding-top:4px;
 }
+
+/* ==========================================================
+   DAY MODAL - MOBILE ONLY
+   ========================================================== */
+
+@media (max-width: 768px) {
+
+  .day-modal-box{
+    width:95%;
+    max-width:none;
+    max-height:85vh;
+    border-radius:22px;
+  }
+
+  /* Header */
+  .day-modal-header{
+    padding:16px;
+  }
+
+  .day-modal-title{
+    font-size:18px;
+    line-height:1.3;
+    margin-bottom:4px;
+  }
+
+  .day-modal-sub{
+    font-size:13px;
+  }
+
+  .day-modal-close{
+    width:38px;
+    height:38px;
+    font-size:16px;
+  }
+
+  /* Ringkasan */
+  .day-modal-summary{
+    padding:14px;
+  }
+
+  .day-summary-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+  }
+
+  .day-summary-item{
+    padding:10px 6px;
+    border-radius:14px;
+    gap:6px;
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .day-summary-item i{
+    font-size:18px;
+  }
+
+  .day-summary-label{
+    font-size:10px;
+  }
+
+  .day-summary-val{
+    font-size:15px;
+    line-height:1.2;
+    font-weight:700;
+  }
+
+  /* List transaksi */
+  .day-modal-list{
+    padding:8px 14px 18px;
+  }
+
+  .day-tx-item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    padding:12px 0;
+  }
+
+  .day-tx-dot{
+    width:10px;
+    height:10px;
+    margin-top:7px;
+  }
+
+  .day-tx-info{
+    flex:1;
+    min-width:0;
+  }
+
+  .day-tx-cat{
+    font-size:14px;
+    font-weight:600;
+    line-height:1.3;
+  }
+
+  .day-tx-note{
+    font-size:11px;
+    margin-top:3px;
+  }
+
+  .day-tx-right{
+    min-width:auto;
+    gap:6px;
+  }
+
+  .day-tx-amount{
+    font-size:15px;
+    font-weight:700;
+  }
+
+  /* Tombol edit hapus */
+  .day-tx-actions{
+    gap:5px;
+  }
+
+  .tx-btn{
+    width:32px;
+    height:32px;
+    border-radius:10px;
+    font-size:12px;
+  }
+
+  .tx-btn i{
+    font-size:12px;
+  }
+
+}
