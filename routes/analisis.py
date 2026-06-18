@@ -30,9 +30,8 @@ def halaman_analisis():
     open_date = request.args.get("open_date")
     now = sekarang_wib()
 
-    bulan_ini = now.strftime("%Y-%m")
-    tahun = now.year
-    bulan = now.month
+    bulan_ini = request.args.get("bulan", now.strftime("%Y-%m"))
+    tahun, bulan = map(int, bulan_ini.split("-"))
 
     if bulan == 1:
         bulan_lalu = f"{tahun - 1}-12"
@@ -151,7 +150,7 @@ def halaman_analisis():
         hari_pertama=hari_pertama,
         data_kalender=data_kalender,
         max_kal=max_kal,
-        bulan_nama=now.strftime("%B %Y"),
+        bulan_nama=datetime(tahun, bulan, 1).strftime("%B %Y"),
         top_transaksi=top_transaksi,
         kategori_bulan=kategori_bulan,
         total_kategori=total_kategori,

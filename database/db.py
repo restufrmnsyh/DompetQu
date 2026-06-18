@@ -980,20 +980,27 @@ def ambil_statistik_hari(user_id):
         for hari in urutan
     ]
 
-def ambil_pengeluaran_per_tanggal_bulan(user_id,bulan):
+def ambil_pengeluaran_per_tanggal_bulan(user_id, bulan):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
+
     cursor.execute("""
-    SELECT strftime('%d', tanggal) as tgl, SUM(nominal)
+    SELECT strftime('%d', tanggal) as tgl,
+           SUM(nominal)
     FROM transaksi
-    WHERE user_id = ? AND jenis = 'Pengeluaran'
+    WHERE user_id = ?
+      AND jenis = 'Pengeluaran'
       AND strftime('%Y-%m', tanggal) = ?
     GROUP BY tgl
     ORDER BY tgl
-    """, (user_id,bulan))
+    """, (user_id, bulan))
     data = cursor.fetchall()
     conn.close()
-    return {int(r[0]): r[1] for r in data}
+    return {
+        int(r[0]): r[1]
+        for r in data
+    }
 
 
 def ambil_top_transaksi(user_id ,limit=5):

@@ -111,8 +111,16 @@
 
 <!-- Kalender pengeluaran -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-calendar3"></i> Kalender Pengeluaran - {{ bulan_nama }}</h2>
-  
+  <div class="kal-filter-row">
+    <h2 class="card-title" style="margin:0">
+      <i class="bi bi-calendar3"></i> Kalender Pengeluaran
+    </h2>
+    <form method="GET" action="/analisis" class="kal-filter-form">
+      <input type="month" name="bulan" value="{{ bulan_ini }}"
+             class="filter-input" onchange="this.form.submit()">
+    </form>
+  </div>
+  <p style="font-size:13px; color:var(--muted); margin: 4px 0 14px;">{{ bulan_nama }}</p>
   <div class="kal-legend">
     <span>Sedikit</span>
     <div class="kal-legend-boxes">

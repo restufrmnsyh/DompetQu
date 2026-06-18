@@ -1444,8 +1444,6 @@ gap: 8px;
    ANALISIS MINGGUAN
    ============================================================ */
 
-.minggu-filter-form { }
-
 .minggu-options {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -2287,3 +2285,16 @@ body.dark .auth-alert {
 .dtx-btn:hover { opacity: .8; }
 .dtx-edit { background: rgba(59,130,246,.12); color: #3b82f6; }
 .dtx-del  { background: rgba(239,68,68,.12);  color: #ef4444; }
+
+.kal-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  gap: 12px;
+}
+.kal-filter-form { flex-shrink: 0; }
+.kal-filter-form .filter-input {
+  padding: 6px 10px;
+  font-size: 13px;
+}
