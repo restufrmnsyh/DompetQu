@@ -6,8 +6,13 @@
 <a href="/analisis/minggu" class="card analisis-shortcut">
   <div class="analisis-shortcut-icon">📅</div>
   <div>
-    <div class="analisis-shortcut-title">Analisis Mingguan</div>
-    <div class="analisis-shortcut-sub">Lihat detail pengeluaran per minggu</div>
+    <div class="analisis-shortcut-title">
+  Detail Mingguan
+</div>
+
+<div class="analisis-shortcut-sub">
+  Analisis per minggu dalam bulan terpilih
+</div>
   </div>
   <i class="bi bi-chevron-right" style="color:var(--muted); margin-left:auto"></i>
 </a>
@@ -74,13 +79,13 @@
 
 <!-- Rincian per hari minggu ini -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-calendar-week"></i> Rincian Per Hari (Minggu Ini)</h2>
+  <h2 class="card-title"><i class="bi bi-calendar-week"></i>  Ringkasan Pengeluaran Mingguan</h2>
   {% for hari, nominal in data_mingguan %}
   <div class="week-row {% if hari == hari_terboros[0] %}week-row--peak{% endif %}">
     <div class="week-day">
       {{ hari }}
       {% if hari == hari_terboros[0] and hari_terboros[1] > 0 %}
-      <span class="peak-badge">🔥 terboros</span>
+      <span class="peak-badge">🔥 terbesar</span>
       {% endif %}
     </div>
     <div class="week-bar-wrap">
@@ -92,19 +97,19 @@
   </div>
   {% endfor %}
   <div class="week-total-row">
-    <span>Total minggu ini</span>
-    <strong>Rp {{ total_mingguan | rupiah }}</strong>
-  </div>
+  <span>Total Pengeluaran</span>
+  <strong>Rp {{ total_mingguan | rupiah }}</strong>
+</div>
 </div>
 
 <!-- Tren 7 hari -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-graph-up"></i> Tren Pemasukan vs Pengeluaran (7 Hari)</h2>
+  <h2 class="card-title"><i class="bi bi-graph-up"></i> Tren Pemasukan vs Pengeluaran — {{ bulan_nama }}</h2>
   {% if tren_labels %}
   <canvas id="trenChart" height="160"></canvas>
   {% else %}
   <div class="empty-state" style="padding:16px 0">
-    <p>Belum ada data 7 hari terakhir.</p>
+<p>Belum ada transaksi pada bulan ini.</p>
   </div>
   {% endif %}
 </div>
@@ -225,7 +230,7 @@
 
 <!-- Top 5 Transaksi Terbesar -->
 <div class="card">
-  <h2 class="card-title"><i class="bi bi-trophy-fill"></i> Top 5 Pengeluaran Terbesar</h2>
+  <h2 class="card-title"><i class="bi bi-trophy-fill"></i>   Top 5 Pengeluaran Terbesar — {{ bulan_nama }}</h2>
   {% if top_transaksi %}
     {% for i, t in top_transaksi | enumerate %}
     <div class="top-tx-row">
@@ -244,7 +249,7 @@
     {% endfor %}
   {% else %}
   <div class="empty-state" style="padding:16px 0">
-    <p>Belum ada data pengeluaran.</p>
+<p>Belum ada pengeluaran pada bulan ini.</p>
   </div>
   {% endif %}
 </div>
@@ -431,7 +436,7 @@ async function showDayModal(tanggal) {
           </div>
           ${t.catatan ? `<div class="dtx-note"><i class="bi bi-chat-left-text"></i> ${t.catatan}</div>` : ""}
           <div class="dtx-actions">
-            <a href="/edit/${t.id}?from_calendar=${tanggal}"
+           <a href="/edit/${t.id}?from_calendar=${tanggal}&bulan={{ bulan_ini }}"
    class="tx-btn tx-btn--edit"><i class="bi bi-pencil-fill"></i> Edit</a>
             <button onclick="confirmHapus(${t.id})" class="dtx-btn dtx-del">
               <i class="bi bi-trash3-fill"></i> Hapus

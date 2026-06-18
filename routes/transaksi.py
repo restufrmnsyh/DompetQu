@@ -128,15 +128,32 @@ def edit(id):
         nominal = int(request.form["nominal"])
         catatan = request.form.get("catatan", "")
         edit_transaksi(session["user_id"], id, tanggal, jenis, kategori, nominal, catatan)
+        from_calendar = request.args.get("from_calendar","")
+        bulan_filter = request.args.get( "bulan","")
+
+        if from_calendar:
+
+            return redirect(
+                f"/analisis?bulan={bulan_filter}&open_date={from_calendar}"
+            )
+
         return redirect("/")
 
     data = ambil_transaksi_by_id(session["user_id"], id)
     if not data:
         return redirect("/")
     
-    from_calendar = request.args.get("from_calendar")
+    from_calendar = request.form.get(
+    "from_calendar",
+    ""
+    )
+
+    bulan_filter = request.form.get(
+        "bulan_filter",
+        ""
+    )
     kategori = ambil_kategori(session["user_id"])
-    return render_template("edit.html", t=data, kategori=kategori, from_calendar=from_calendar)
+    return render_template("edit.html", t=data, kategori=kategori, from_calendar=from_calendar, bulan_filter=bulan_filter)
 
 
 @transaksi.route("/hapus/<int:id>")

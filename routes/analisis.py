@@ -3,15 +3,15 @@ from flask import jsonify  # tambah di import
 
 
 from database.db import (
-    ambil_pengeluaran_harian_minggu,
-    ambil_tren_harian,
     hitung_ringkasan,
     ambil_pengeluaran_per_tanggal_bulan,
     ambil_top_transaksi,
     ambil_pengeluaran_per_kategori,
     ambil_ringkasan_bulanan,
     ambil_pengeluaran_per_minggu,
-    ambil_semua_transaksi
+    ambil_transaksi_per_tanggal,
+    ambil_pengeluaran_per_minggu_ringkas,
+    ambil_tren_bulan
 )
 
 from utils.waktu import sekarang_wib
@@ -30,7 +30,7 @@ def halaman_analisis():
     open_date = request.args.get("open_date")
     now = sekarang_wib()
 
-    bulan_ini = request.args.get("bulan", now.strftime("%Y-%m"))
+    bulan_ini = request.args.get("bulan") or now.strftime("%Y-%m")
     tahun, bulan = map(int, bulan_ini.split("-"))
 
     if bulan == 1:
@@ -59,8 +59,9 @@ def halaman_analisis():
 
     # Minggu berjalan
     data_mingguan, total_mingguan = (
-        ambil_pengeluaran_harian_minggu(
-            session["user_id"]
+        ambil_pengeluaran_per_minggu_ringkas(
+            session["user_id"],
+            bulan_ini
         )
     )
 
@@ -71,12 +72,16 @@ def halaman_analisis():
     )
 
     # Tren 7 hari
-    tren = ambil_tren_harian(
-        session["user_id"],
-        7
+    tren = ambil_tren_bulan(
+    session["user_id"],
+    bulan_ini
     )
 
-    tren_labels = [x[0] for x in tren]
+    tren_labels = [
+        x[0][8:]      # ambil DD saja
+        for x in tren
+    ]
+
     tren_pemasukan = [x[1] for x in tren]
     tren_pengeluaran = [x[2] for x in tren]
 
@@ -107,7 +112,8 @@ def halaman_analisis():
     # Top transaksi
     top_transaksi = ambil_top_transaksi(
         session["user_id"],
-        5
+        5,
+        bulan_ini
     )
 
     # Kategori
@@ -194,8 +200,7 @@ def analisis_minggu():
         1
     ).strftime("%B %Y")
 
-    jumlah_minggu = min(
-        4,
+    jumlah_minggu = (
         (jumlah_hari + 6) // 7
     )
 
@@ -275,7 +280,7 @@ def hari_data():
         return jsonify([])
 
     from database.db import ambil_semua_transaksi
-    semua = ambil_semua_transaksi(session["user_id"],bulan=tanggal[:7])
+    data = ambil_transaksi_per_tanggal(session["user_id"], tanggal)
     hasil = [
         {
             "id": t[0],
@@ -285,6 +290,6 @@ def hari_data():
             "nominal": t[4],
             "catatan": t[5] or ""
         }
-        for t in semua if t[1] == tanggal
+        for t in data
     ]
     return jsonify(hasil)

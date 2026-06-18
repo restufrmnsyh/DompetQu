@@ -1,5 +1,6 @@
 import sqlite3
 import hashlib
+import calendar
 
 from datetime import timedelta
 from utils.waktu import sekarang_wib
@@ -1003,25 +1004,59 @@ def ambil_pengeluaran_per_tanggal_bulan(user_id, bulan):
     }
 
 
-def ambil_top_transaksi(user_id ,limit=5):
+def ambil_top_transaksi(user_id, limit=5, bulan=None):
+
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("""
-    SELECT tanggal, kategori, nominal, catatan
-    FROM transaksi
-    WHERE user_id = ? AND jenis = 'Pengeluaran'
-    ORDER BY nominal DESC
-    LIMIT ?
-    """, (user_id,limit))
+
+    if bulan:
+
+        cursor.execute("""
+        SELECT
+            tanggal,
+            kategori,
+            nominal,
+            catatan
+        FROM transaksi
+        WHERE user_id = ?
+          AND jenis = 'Pengeluaran'
+          AND strftime('%Y-%m', tanggal) = ?
+        ORDER BY nominal DESC
+        LIMIT ?
+        """, (
+            user_id,
+            bulan,
+            limit
+        ))
+
+    else:
+
+        cursor.execute("""
+        SELECT
+            tanggal,
+            kategori,
+            nominal,
+            catatan
+        FROM transaksi
+        WHERE user_id = ?
+          AND jenis = 'Pengeluaran'
+        ORDER BY nominal DESC
+        LIMIT ?
+        """, (
+            user_id,
+            limit
+        ))
+
     data = cursor.fetchall()
+
     conn.close()
+
     return data
 
 def ambil_pengeluaran_per_minggu(user_id, bulan, minggu):
     """
-    Ambil pengeluaran per hari untuk minggu ke-N dalam bulan tertentu.
-    minggu: 1-4
-    bulan: format 'YYYY-MM'
+    Minggu: 1 sampai jumlah minggu pada bulan
+    Bulan: format YYYY-MM
     """
     import calendar
     from datetime import date
@@ -1032,12 +1067,15 @@ def ambil_pengeluaran_per_minggu(user_id, bulan, minggu):
     # Tentukan rentang tanggal per minggu
     minggu_ranges = []
     start = 1
-    for w in range(1, 5):
-        end = min(start + 6, jumlah_hari)
-        minggu_ranges.append((start, end))
+    while start <= jumlah_hari:
+        end = min(
+            start + 6,
+            jumlah_hari
+        )
+        minggu_ranges.append(
+            (start, end)
+        )
         start = end + 1
-        if start > jumlah_hari:
-            break
 
     if minggu < 1 or minggu > len(minggu_ranges):
         return [], 0, "", ""
@@ -1108,3 +1146,138 @@ def ambil_pengeluaran_kategori_bulan(
     conn.close()
 
     return {r[0]: r[1] for r in data}
+
+def ambil_transaksi_per_tanggal(
+    user_id,
+    tanggal
+):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT *
+    FROM transaksi
+    WHERE user_id = ?
+      AND tanggal = ?
+    ORDER BY id DESC
+    """, (
+        user_id,
+        tanggal
+    ))
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data
+
+def ambil_pengeluaran_per_minggu_ringkas(
+    user_id,
+    bulan
+):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    tahun, bln = map(
+        int,
+        bulan.split("-")
+    )
+
+    jumlah_hari = calendar.monthrange(
+        tahun,
+        bln
+    )[1]
+
+    hasil = []
+    total = 0
+
+    start = 1
+    minggu_ke = 1
+
+    while start <= jumlah_hari:
+
+        end = min(
+            start + 6,
+            jumlah_hari
+        )
+
+        tgl_awal = f"{bulan}-{start:02d}"
+        tgl_akhir = f"{bulan}-{end:02d}"
+
+        cursor.execute("""
+        SELECT COALESCE(
+            SUM(nominal),
+            0
+        )
+        FROM transaksi
+        WHERE user_id = ?
+        AND jenis = 'Pengeluaran'
+        AND tanggal BETWEEN ? AND ?
+        """, (
+            user_id,
+            tgl_awal,
+            tgl_akhir
+        ))
+
+        nominal = cursor.fetchone()[0]
+
+        hasil.append(
+            (
+                f"Minggu {minggu_ke}",
+                nominal
+            )
+        )
+
+        total += nominal
+
+        minggu_ke += 1
+        start = end + 1
+
+    conn.close()
+
+    return hasil, total
+
+def ambil_tren_bulan(user_id, bulan):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        tanggal,
+
+        SUM(
+            CASE
+                WHEN jenis='Pemasukan'
+                THEN nominal
+                ELSE 0
+            END
+        ) as masuk,
+
+        SUM(
+            CASE
+                WHEN jenis='Pengeluaran'
+                THEN nominal
+                ELSE 0
+            END
+        ) as keluar
+
+    FROM transaksi
+
+    WHERE user_id = ?
+      AND strftime('%Y-%m', tanggal) = ?
+
+    GROUP BY tanggal
+    ORDER BY tanggal
+    """, (
+        user_id,
+        bulan
+    ))
+
+    data = cursor.fetchall()
+
+    conn.close()
+
+    return data

@@ -3,15 +3,26 @@
 {% block content %}
 <div class="page-header">
   {% if from_calendar %}
-<a href="/analisis?open_date={{ from_calendar }}"
-   class="back-btn"><i class="bi bi-arrow-left-square"></i> Kembali</a>
+<a href="/analisis?bulan={{ bulan_filter }}&open_date={{ from_calendar }}"
+   class="btn">
+    Kembali
+</a>
 {% else %}
-<a href="/" class="back-btn"><i class="bi bi-arrow-left-square"></i> Kembali</a>
+<a href="/" class="btn">
+    Kembali
+</a>
 {% endif %}
   <h1><i class="bi bi-pencil-fill"></i> Edit Transaksi</h1>
 </div>
 <div class="card">
   <form method="POST">
+    <input type="hidden"
+       name="from_calendar"
+       value="{{ from_calendar }}">
+
+<input type="hidden"
+       name="bulan_filter"
+       value="{{ bulan_filter }}">
     <div class="form-group">
       <label>Tanggal</label>
       <input type="date" name="tanggal" value="{{ t[1] }}" required>
