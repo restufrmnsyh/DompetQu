@@ -204,6 +204,9 @@ def analisis_minggu():
         (jumlah_hari + 6) // 7
     )
 
+    if minggu > jumlah_minggu:
+        minggu = 1
+
     data, total, date_start, date_end = (
         ambil_pengeluaran_per_minggu(
             session["user_id"],
