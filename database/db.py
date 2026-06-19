@@ -4,8 +4,11 @@ import calendar
 
 from datetime import timedelta
 from utils.waktu import sekarang_wib
+import os
 
-DB_PATH = "database.db"
+DB_PATH = os.path.expanduser(
+    "~/database.db"
+)
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
