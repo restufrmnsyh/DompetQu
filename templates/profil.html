@@ -14,11 +14,28 @@
   </h1>
 </div>
 
-<div class="card">
-  <div class="profil-info">
-    <div class="profil-avatar">{{ username[0] | upper }}</div>
-    <div class="profil-username">{{ username }}</div>
-  </div>
+<div class="profil-hero">
+  <form id="form-foto" method="POST" action="/profil/foto" enctype="multipart/form-data">
+    <label for="input-foto" class="profil-avatar-wrap" title="Ganti foto profil">
+      {% if foto_profil %}
+        <img src="{{ foto_profil }}" alt="Foto profil" class="profil-avatar profil-avatar-img" id="preview-avatar">
+      {% else %}
+        <div class="profil-avatar" id="preview-avatar">{{ username[0] | upper }}</div>
+      {% endif %}
+      <span class="profil-avatar-edit">
+        <i class="bi bi-camera-fill"></i>
+      </span>
+    </label>
+    <input
+      type="file"
+      name="foto"
+      id="input-foto"
+      accept="image/png, image/jpeg, image/webp"
+      class="profil-avatar-input"
+      onchange="document.getElementById('form-foto').submit()">
+  </form>
+  <div class="profil-username">{{ username }}</div>
+  <div class="profil-sub">Anggota DompetQu</div>
 </div>
 
 <div class="card">
@@ -60,23 +77,35 @@
   <div class="action-list">
 
     <a href="/export" class="action-item">
-      <i class="bi bi-file-earmark-excel-fill"></i>
-      Export Excel
+      <span class="action-icon action-icon-green">
+        <i class="bi bi-file-earmark-excel-fill"></i>
+      </span>
+      <span class="action-text">Export Excel</span>
+      <i class="bi bi-chevron-right action-chevron"></i>
     </a>
 
     <a href="/backup" class="action-item">
-      <i class="bi bi-cloud-arrow-down-fill"></i>
-      Backup JSON
+      <span class="action-icon action-icon-blue">
+        <i class="bi bi-cloud-arrow-down-fill"></i>
+      </span>
+      <span class="action-text">Backup JSON</span>
+      <i class="bi bi-chevron-right action-chevron"></i>
     </a>
 
     <a href="/restore" class="action-item">
-      <i class="bi bi-cloud-arrow-up-fill"></i>
-      Restore Data
+      <span class="action-icon action-icon-amber">
+        <i class="bi bi-cloud-arrow-up-fill"></i>
+      </span>
+      <span class="action-text">Restore Data</span>
+      <i class="bi bi-chevron-right action-chevron"></i>
     </a>
 
     <a href="/kategori" class="action-item">
-      <i class="bi bi-tags-fill"></i>
-      Kelola Kategori
+      <span class="action-icon action-icon-purple">
+        <i class="bi bi-tags-fill"></i>
+      </span>
+      <span class="action-text">Kelola Kategori</span>
+      <i class="bi bi-chevron-right action-chevron"></i>
     </a>
 
   </div>

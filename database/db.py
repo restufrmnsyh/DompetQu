@@ -78,6 +78,15 @@ def init_db():
     )
     """)
 
+    try:
+        cursor.execute("""
+        ALTER TABLE users
+        ADD COLUMN foto_profil TEXT
+        """)
+    except:
+        pass
+
+
     # Migrate plain passwords to hashed if needed
     cursor.execute("SELECT id, username, password FROM users")
     users = cursor.fetchall()
@@ -1281,3 +1290,37 @@ def ambil_tren_bulan(user_id, bulan):
     conn.close()
 
     return data
+
+def ambil_foto_profil(user_id):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT foto_profil
+    FROM users
+    WHERE id = ?
+    """, (user_id,))
+
+    data = cursor.fetchone()
+
+    conn.close()
+
+    return data[0] if data else None
+
+def update_foto_profil(user_id, foto):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    UPDATE users
+    SET foto_profil = ?
+    WHERE id = ?
+    """, (
+        foto,
+        user_id
+    ))
+
+    conn.commit()
+    conn.close()

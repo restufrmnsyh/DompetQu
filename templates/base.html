@@ -40,8 +40,23 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.m
   <i class="bi bi-moon-fill"></i>
 </button>
 
-<a href="/profil" class="btn-icon">
-    <i class="bi bi-person-circle"></i>
+<a href="/profil" class="nav-profile-btn">
+
+{% if session.get("foto_profil") %}
+
+<img
+    src="{{ session['foto_profil'] }}"
+    alt="Profil"
+    class="nav-profile-img">
+
+{% else %}
+
+<div class="nav-profile-fallback">
+    {{ session["username"][0] | upper }}
+</div>
+
+{% endif %}
+
 </a>
 
 <a href="/logout" class="btn-icon btn-icon--danger">
