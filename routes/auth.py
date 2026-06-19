@@ -172,9 +172,15 @@ def upload_foto():
 
     img = img.convert("RGB")
 
-    img.thumbnail(
+    from PIL import ImageOps
+
+    img = Image.open(file)
+    img = img.convert("RGB")
+
+    img = ImageOps.fit(
+        img,
         (300, 300),
-        Image.LANCZOS
+        method=Image.LANCZOS
     )
 
     img.save(

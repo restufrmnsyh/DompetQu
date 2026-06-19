@@ -825,9 +825,8 @@ def tambah_user(username, password):
         ]
 
         for k in kategori_default:
-
             cursor.execute("""
-            INSERT INTO kategori (
+            INSERT OR IGNORE INTO kategori (
                 nama,
                 user_id
             )
@@ -836,7 +835,6 @@ def tambah_user(username, password):
                 k,
                 user_id
             ))
-
         conn.commit()
 
         berhasil = True
