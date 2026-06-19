@@ -3,12 +3,13 @@ from flask import (
     render_template,
     request,
     redirect,
-    session
+    session,
+    current_app
 )
 
 import os
 import uuid
-from PIL import Image
+from PIL import Image, ImageOps
 
 from werkzeug.utils import secure_filename
 
@@ -135,11 +136,17 @@ def upload_foto():
     file = request.files.get("foto")
 
     if not file or file.filename == "":
+        current_app.logger.warning("Upload foto: tidak ada file terkirim")
+        return redirect("/profil")
+
+    if "." not in file.filename:
+        current_app.logger.warning(f"Upload foto: filename tanpa ekstensi -> {file.filename}")
         return redirect("/profil")
 
     ekstensi = file.filename.rsplit(".", 1)[1].lower()
 
     if ekstensi not in ["jpg", "jpeg", "png", "webp"]:
+        current_app.logger.warning(f"Upload foto: ekstensi ditolak -> {ekstensi}")
         return redirect("/profil")
 
     nama_file = (
@@ -148,11 +155,19 @@ def upload_foto():
         + ekstensi
     )
 
+    # FIX #1: gunakan path absolut berbasis root aplikasi Flask,
+    # bukan path relatif terhadap current working directory.
+    # PENTING di PythonAnywhere: current_app.root_path HARUS mengarah
+    # ke folder yang sama persis dengan path yang di-set di
+    # dashboard Web -> Static files mapping untuk URL "/static/".
     folder_upload = os.path.join(
+        current_app.root_path,
         "static",
         "uploads",
         "profil"
     )
+
+    current_app.logger.info(f"Upload foto: menyimpan ke folder -> {folder_upload}")
 
     os.makedirs(
         folder_upload,
@@ -168,26 +183,25 @@ def upload_foto():
         session["user_id"]
     )
 
-    img = Image.open(file)
-
-    img = img.convert("RGB")
-
-    from PIL import ImageOps
-
-    img = Image.open(file)
-    img = img.convert("RGB")
-
-    img = ImageOps.fit(
-        img,
-        (300, 300),
-        method=Image.LANCZOS
-    )
-
-    img.save(
-        lokasi,
-        quality=85,
-        optimize=True
-    )
+    # FIX #2: hanya buka file SEKALI. Membuka FileStorage dua kali
+    # bisa gagal karena stream sudah terbaca habis di pembukaan pertama.
+    try:
+        img = Image.open(file)
+        img = img.convert("RGB")
+        img = ImageOps.fit(
+            img,
+            (300, 300),
+            method=Image.LANCZOS
+        )
+        img.save(
+            lokasi,
+            quality=85,
+            optimize=True
+        )
+        current_app.logger.info(f"Upload foto: berhasil disimpan -> {lokasi}")
+    except Exception as e:
+        current_app.logger.error(f"Upload foto: GAGAL memproses gambar -> {e}")
+        return redirect("/profil")
 
     update_foto_profil(
         session["user_id"],
@@ -198,12 +212,16 @@ def upload_foto():
         f"/static/uploads/profil/{nama_file}"
     )
 
+    # Hapus foto lama setelah foto baru berhasil disimpan
     if foto_lama:
-        path_lama = foto_lama.lstrip("/")
+        path_lama = os.path.join(
+            current_app.root_path,
+            foto_lama.lstrip("/")
+        )
         if os.path.exists(path_lama):
             try:
                 os.remove(path_lama)
-            except:
+            except Exception:
                 pass
 
     return redirect("/profil")
