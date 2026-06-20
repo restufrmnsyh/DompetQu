@@ -826,7 +826,7 @@ def tambah_user(username, password):
 
         for k in kategori_default:
             cursor.execute("""
-            INSERT OR IGNORE INTO kategori (
+            INSERT INTO kategori (
                 nama,
                 user_id
             )

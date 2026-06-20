@@ -410,7 +410,9 @@ async function showDayModal(tanggal) {
         <div class="dms-item dms-balance">
           <div class="dms-icon"><i class="bi bi-wallet2"></i></div>
           <div class="dms-label">Selisih</div>
-          <div class="dms-val ${selisih >= 0 ? 'income' : 'expense'}">${formatRupiah(Math.abs(selisih))}</div>
+<div class="dms-val ${selisih >= 0 ? 'income' : 'expense'}">
+    ${selisih < 0 ? '-' : '+'} ${formatRupiah(Math.abs(selisih))}
+</div>
         </div>
       </div>`;
 
