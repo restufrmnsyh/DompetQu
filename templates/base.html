@@ -14,6 +14,24 @@ href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.m
   {% block head %}{% endblock %}
 </head>
 <body>
+<div class="toast-container">
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+
+    {% for category, message in messages %}
+
+    <div class="toast toast-{{ category }}">
+        {{ message }}
+    </div>
+
+    {% endfor %}
+
+{% endif %}
+{% endwith %}
+
+</div>
+
 
 {% if session.login %}
 
@@ -181,6 +199,26 @@ if (saldoText && toggleSaldo) {
     });
 
 }
+
+</script>
+
+<script>
+
+setTimeout(() => {
+
+    document
+    .querySelectorAll(".toast")
+    .forEach(el => {
+
+        el.classList.add("toast-hide");
+
+        setTimeout(() => {
+            el.remove();
+        }, 300);
+
+    });
+
+}, 3000);
 
 </script>
 </body>

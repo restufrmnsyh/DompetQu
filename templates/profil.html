@@ -39,6 +39,39 @@
 </div>
 
 <div class="card">
+
+  <h2 class="card-title">
+    <i class="bi bi-person-fill"></i>
+    Ganti Username
+  </h2>
+
+  <form method="POST" action="/profil/username">
+
+    <div class="form-group">
+      <label>Username Baru</label>
+
+      <input
+        type="text"
+        name="username"
+        value="{{ username }}"
+        required
+        minlength="3">
+
+    </div>
+
+    <button class="btn btn-full">
+
+      <i class="bi bi-check-circle-fill"></i>
+
+      Simpan Username
+
+    </button>
+
+  </form>
+
+</div>
+
+<div class="card">
   <h2 class="card-title">
     <i class="bi bi-key-fill"></i>
     Ganti Password
@@ -112,10 +145,114 @@
 </div>
 
 <div class="card">
+
+  <h2 class="card-title">
+    <i class="bi bi-exclamation-triangle-fill"></i>
+    Zona Berbahaya
+  </h2>
+
+  <p style="font-size:14px;color:var(--muted)">
+    Menghapus akun akan menghapus seluruh data transaksi,
+    kategori, budget, target tabungan, dan foto profil.
+  </p>
+
+  <form id="formHapusAkun" method="POST" action="/profil/hapus-akun">
+
+    <div class="form-group">
+      <label>Masukkan Password</label>
+      <input
+        type="password"
+        name="password"
+        required>
+    </div>
+
+    <button
+    type="button"
+    class="btn btn-danger btn-full"
+    onclick="openDeleteModal()">
+
+    <i class="bi bi-trash-fill"></i>
+    Hapus Akun Permanen
+
+</button>
+
+  </form>
+
+</div>
+
+<div class="card">
   <a href="/logout" class="btn btn-full btn-danger">
     <i class="bi bi-box-arrow-right"></i>
     Logout
   </a>
 </div>
+
+<div id="deleteModal" class="modal-overlay">
+
+  <div class="delete-modal">
+
+    <div class="delete-icon">
+      <i class="bi bi-exclamation-triangle-fill"></i>
+    </div>
+
+    <h3>Hapus Akun?</h3>
+
+    <p>
+      Semua data berikut akan dihapus permanen:
+    </p>
+
+    <ul class="delete-list">
+      <li>Transaksi</li>
+      <li>Kategori</li>
+      <li>Budget</li>
+      <li>Target Tabungan</li>
+      <li>Foto Profil</li>
+    </ul>
+
+    <div class="delete-actions">
+
+      <button
+        type="button"
+        class="btn-cancel"
+        onclick="closeDeleteModal()">
+
+        Batal
+
+      </button>
+
+      <button
+        type="submit"
+        form="formHapusAkun"
+        class="btn-delete">
+
+        Ya, Hapus Akun
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+function openDeleteModal(){
+
+    document
+        .getElementById("deleteModal")
+        .classList.add("show");
+
+}
+
+function closeDeleteModal(){
+
+    document
+        .getElementById("deleteModal")
+        .classList.remove("show");
+
+}
+
+</script>
 
 {% endblock %}

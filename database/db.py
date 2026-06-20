@@ -1325,3 +1325,105 @@ def update_foto_profil(user_id, foto):
 
     conn.commit()
     conn.close()
+
+def verifikasi_password(
+    user_id,
+    password
+):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id
+    FROM users
+    WHERE id = ?
+    AND password = ?
+    """, (
+        user_id,
+        hash_password(password)
+    ))
+
+    hasil = cursor.fetchone()
+
+    conn.close()
+
+    return hasil is not None    
+
+
+def hapus_akun(user_id):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute(
+        "DELETE FROM transaksi WHERE user_id=?",
+        (user_id,)
+    )
+
+    cursor.execute(
+        "DELETE FROM kategori WHERE user_id=?",
+        (user_id,)
+    )
+
+    cursor.execute(
+        "DELETE FROM budget WHERE user_id=?",
+        (user_id,)
+    )
+
+    cursor.execute(
+        "DELETE FROM target_tabungan WHERE user_id=?",
+        (user_id,)
+    )
+
+    cursor.execute(
+        "DELETE FROM users WHERE id=?",
+        (user_id,)
+    )
+
+    conn.commit()
+    conn.close()
+
+
+def update_username(user_id, username_baru):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    try:
+
+        cursor.execute("""
+        UPDATE users
+        SET username = ?
+        WHERE id = ?
+        """, (
+            username_baru,
+            user_id
+        ))
+
+        conn.commit()
+
+        berhasil = True
+
+    except Exception as e:
+        print("ERROR UPDATE USERNAME:", e)
+        berhasil = False
+    conn.close()
+    return berhasil
+
+def username_sudah_ada(username):
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT id
+    FROM users
+    WHERE username = ?
+    """, (username,))
+
+    hasil = cursor.fetchone()
+
+    conn.close()
+
+    return hasil is not None

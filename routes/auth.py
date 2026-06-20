@@ -4,7 +4,8 @@ from flask import (
     request,
     redirect,
     session,
-    current_app
+    current_app,
+    flash
 )
 
 import os
@@ -18,7 +19,11 @@ from database.db import (
     ganti_password,
     tambah_user,
     ambil_foto_profil,
-    update_foto_profil
+    update_foto_profil,
+    verifikasi_password,
+    hapus_akun,
+    update_username,
+    username_sudah_ada
 )
 
 auth = Blueprint(
@@ -93,8 +98,6 @@ def profil():
     if "login" not in session:
         return redirect("/login")
 
-    pesan = ""
-
     if request.method == "POST":
 
         password_lama = request.form["password_lama"]
@@ -110,12 +113,16 @@ def profil():
         )
 
         if berhasil:
-
-            pesan = "Password berhasil diubah"
-
+            flash(
+                "Password berhasil diubah",
+                "success"
+            )
         else:
 
-            pesan = "Password lama salah"
+            flash(
+                "Password lama salah",
+                "danger"
+            )
 
     foto_profil = ambil_foto_profil(
         session["user_id"]
@@ -123,9 +130,101 @@ def profil():
     return render_template(
         "profil.html",
         username=session["username"],
-        pesan=pesan,
         foto_profil=foto_profil
     )
+
+@auth.route(
+    "/profil/username",
+    methods=["POST"]
+)
+def ganti_username():
+
+    if "login" not in session:
+        return redirect("/login")
+
+    username_baru = request.form["username"].strip()
+
+    if len(username_baru) < 3:
+
+        flash(
+            "Username minimal 3 karakter",
+            "warning"
+        )
+
+        return redirect("/profil")
+
+    if username_sudah_ada(username_baru):
+
+        flash(
+            "Username sudah digunakan",
+            "danger"
+        )
+
+        return redirect("/profil")
+
+    berhasil = update_username(
+        session["user_id"],
+        username_baru
+    )
+
+    if berhasil:
+
+        session["username"] = username_baru
+
+        flash(
+            "Username berhasil diperbarui",
+            "success"
+        )
+
+    else:
+
+        flash(
+            "Gagal mengubah username",
+            "danger"
+        )
+
+    return redirect("/profil")
+
+
+@auth.route(
+    "/profil/hapus-akun",
+    methods=["POST"]
+)
+def hapus_akun_route():
+
+    if "login" not in session:
+        return redirect("/login")
+
+    password = request.form["password"]
+
+    if not verifikasi_password(session["user_id"], password):
+        flash(
+            "Password yang Anda masukkan salah",
+            "danger"
+        )
+        return redirect("/profil")
+
+    foto = ambil_foto_profil(
+        session["user_id"]
+    )
+
+    if foto:
+
+        path = foto.lstrip("/")
+
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except:
+                pass
+
+    hapus_akun(
+        session["user_id"]
+    )
+
+    session.clear()
+
+    return redirect("/login")
 
 @auth.route("/profil/foto", methods=["POST"])
 def upload_foto():
