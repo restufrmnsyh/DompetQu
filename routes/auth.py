@@ -324,3 +324,43 @@ def upload_foto():
                 pass
 
     return redirect("/profil")
+
+@auth.route(
+    "/profil/hapus-foto",
+    methods=["POST"]
+)
+def hapus_foto():
+
+    if "login" not in session:
+        return redirect("/login")
+
+    foto = ambil_foto_profil(
+        session["user_id"]
+    )
+
+    if foto:
+
+        path = os.path.join(
+            current_app.root_path,
+            foto.lstrip("/")
+        )
+
+        if os.path.exists(path):
+            try:
+                os.remove(path)
+            except:
+                pass
+
+        update_foto_profil(
+            session["user_id"],
+            None
+        )
+
+        session["foto_profil"] = None
+
+        flash(
+            "Foto profil berhasil dihapus",
+            "success"
+        )
+
+    return redirect("/profil")

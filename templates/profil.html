@@ -36,6 +36,19 @@
   </form>
   <div class="profil-username">{{ username }}</div>
   <div class="profil-sub">Anggota DompetQu</div>
+  {% if foto_profil %}
+
+<button
+    type="button"
+    class="btn btn-danger"
+    onclick="openDeletePhotoModal()">
+
+    <i class="bi bi-trash-fill"></i>
+    Hapus Foto
+
+</button>
+
+{% endif %}
 </div>
 
 <div class="card">
@@ -253,6 +266,68 @@ function closeDeleteModal(){
 
 }
 
+function openDeletePhotoModal(){
+
+    document
+        .getElementById("deletePhotoModal")
+        .classList.add("show");
+
+}
+
+function closeDeletePhotoModal(){
+
+    document
+        .getElementById("deletePhotoModal")
+        .classList.remove("show");
+
+}
+
 </script>
+
+<div id="deletePhotoModal" class="modal-overlay">
+
+  <div class="delete-modal">
+
+    <div class="delete-icon">
+      <i class="bi bi-image-fill"></i>
+    </div>
+
+    <h3>Hapus Foto Profil?</h3>
+
+    <p>
+      Foto profil akan dihapus dan avatar
+      kembali menjadi huruf pertama username.
+    </p>
+
+    <div class="delete-actions">
+
+      <button
+        type="button"
+        class="btn-cancel"
+        onclick="closeDeletePhotoModal()">
+
+        Batal
+
+      </button>
+
+      <form
+        method="POST"
+        action="/profil/hapus-foto">
+
+        <button
+          type="submit"
+          class="btn-delete">
+
+          Ya, Hapus
+
+        </button>
+
+      </form>
+
+    </div>
+
+  </div>
+
+</div>
 
 {% endblock %}
