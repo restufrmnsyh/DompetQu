@@ -197,8 +197,12 @@ const toggleSaldo = document.getElementById("toggleSaldo");
 
 if (saldoText && toggleSaldo) {
 
-    let visible = true;
     const saldoAsli = saldoText.innerText;
+
+    let visible = false;
+
+    saldoText.innerText = "Rp ••••••••";
+    toggleSaldo.innerHTML = eyeSlashSvg;
 
     toggleSaldo.addEventListener("click", () => {
 
