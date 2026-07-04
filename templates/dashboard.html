@@ -105,65 +105,131 @@ block content %}
 
 <div class="card insight-card">
   <div class="insight-header">
-    <span class="insight-icon">💡</span>
+    <div class="insight-head-icon"><i class="bi bi-lightbulb-fill"></i></div>
     <h2>Insight Keuangan</h2>
   </div>
 
-  <div class="insight-items">
+  <div class="insight-body">
 
-    <div class="insight-item">
-      <div class="insight-item-icon" style="background:#d1fae5">📈</div>
-      <div class="insight-item-body">
-        <div class="insight-item-label">Pengeluaran Terbesar</div>
-        <div class="insight-item-value">
-          {{ kategori_terbesar[0] }}
-          <span class="insight-item-sub">Rp {{ kategori_terbesar[1] | rupiah }}</span>
+  <div class="insight-section">
+    <div class="ik-icon icon-orange"><i class="bi bi-cart-fill"></i></div>
+    <div class="ik-section-text">
+      <div class="ik-section-label">Pengeluaran Terbesar</div>
+      <div class="ik-section-sub">Kategori dengan pengeluaran paling besar</div>
+    </div>
+    <div class="ik-section-right">
+      <div class="ik-section-val">{{ kategori_terbesar[0] }}</div>
+      <div class="ik-section-money orange">Rp {{ kategori_terbesar[1] | rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="insight-section">
+    <div class="ik-icon icon-blue"><i class="bi bi-speedometer2"></i></div>
+    <div class="ik-section-text">
+      <div class="ik-section-label">Rasio Pengeluaran</div>
+      <div class="ik-rasio-bar">
+        <div class="ik-rasio-fill
+          {% if persentase_pengeluaran > 80 %}fill-danger
+          {% elif persentase_pengeluaran > 50 %}fill-warning
+          {% else %}fill-safe{% endif %}"
+          style="width:{{ [persentase_pengeluaran, 100]|min }}%">
         </div>
       </div>
     </div>
-
-    <div class="insight-item">
-      <div class="insight-item-icon" style="background:#dbeafe">💸</div>
-      <div class="insight-item-body">
-        <div class="insight-item-label">Rasio Pengeluaran</div>
-        <div class="insight-item-value">
-          {{ persentase_pengeluaran | round(1) }}%
-          <span class="insight-item-sub">dari total pemasukan</span>
-        </div>
-      </div>
-      <div class="insight-badge {% if persentase_pengeluaran > 80 %}badge-danger{% elif persentase_pengeluaran > 50 %}badge-warning{% else %}badge-safe{% endif %}">
-        {% if persentase_pengeluaran > 80 %}Boros{% elif persentase_pengeluaran > 50 %}Sedang{% else %}Hemat{% endif %}
+    <div class="ik-section-right">
+      <div class="ik-section-val">{{ persentase_pengeluaran | round(1) }}%</div>
+      <div class="ratio-status
+        {% if persentase_pengeluaran > 80 %}danger
+        {% elif persentase_pengeluaran > 50 %}warning
+        {% else %}success{% endif %}">
+        {% if persentase_pengeluaran > 80 %}Boros
+        {% elif persentase_pengeluaran > 50 %}Sedang
+        {% else %}Aman{% endif %}
       </div>
     </div>
+  </div>
 
-    <div class="insight-item">
-      <div class="insight-item-icon" style="background:#f3e8ff">💰</div>
-      <div class="insight-item-body">
-        <div class="insight-item-label">Sisa Pemasukan</div>
-        <div class="insight-item-value {% if pemasukan - pengeluaran < 0 %}expense{% else %}income{% endif %}">
-          Rp {{ (pemasukan - pengeluaran) | rupiah }}
-          <span class="insight-item-sub">setelah pengeluaran</span>
-        </div>
+  <div class="divider"></div>
+
+  <div class="insight-section">
+    <div class="ik-icon icon-green"><i class="bi bi-wallet2"></i></div>
+    <div class="ik-section-text">
+      <div class="ik-section-label">Sisa Pemasukan</div>
+      <div class="ik-section-sub">Setelah seluruh pengeluaran</div>
+    </div>
+    <div class="ik-section-right">
+      <div class="ik-section-val {% if pemasukan - pengeluaran < 0 %}expense{% else %}income-text{% endif %}">
+        Rp {{ (pemasukan - pengeluaran) | rupiah }}
       </div>
     </div>
-
   </div>
-
-  {% if persentase_pengeluaran > 80 %}
-  <div class="insight-alert danger">
-    🚨 Pengeluaran sudah mendekati pemasukan! Pertimbangkan mengurangi pengeluaran.
-  </div>
-  {% elif persentase_pengeluaran > 50 %}
-  <div class="insight-alert warning">
-    ⚠️ Pengeluaran sudah melewati setengah pemasukan. Tetap pantau keuanganmu.
-  </div>
-  {% else %}
-  <div class="insight-alert success">
-    ✅ Keuangan kamu sehat! Terus pertahankan pola ini.
-  </div>
-  {% endif %}
 
 </div>
+{% if persentase_pengeluaran > 80 %}
+<div class="insight-alert danger">
+  <i class="bi bi-exclamation-circle-fill"></i>
+  <span>Pengeluaran sudah mendekati pemasukan! Pertimbangkan mengurangi pengeluaran.</span>
+</div>
+{% elif persentase_pengeluaran > 50 %}
+<div class="insight-alert warning">
+  <i class="bi bi-exclamation-triangle-fill"></i>
+  <span>Pengeluaran sudah melewati setengah pemasukan. Tetap pantau keuanganmu.</span>
+</div>
+{% else %}
+<div class="insight-alert success">
+  <i class="bi bi-check-circle-fill"></i>
+  <span>Keuangan kamu sehat! Terus pertahankan pola ini.</span>
+</div>
+{% endif %}
+</div>
+
+
+<script>
+(function() {
+  const pct = {{ persentase_pengeluaran | round(1) }};
+  const trackColor = getComputedStyle(document.documentElement)
+    .getPropertyValue('--border').trim() || '#e5e7eb';
+
+  // Pie — data kategori pengeluaran (hardcode warna, data dari server kalau mau dinamis)
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [45, 20, 20, 15],
+        backgroundColor: ['#e97b3a','#8b9e8c','#c4cfc5','#b5d5c5'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      cutout: '52%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      animation: { duration: 900 }
+    }
+  });
+
+  // Gauge
+  const gaugeColor = pct > 80 ? '#ef4444' : pct > 50 ? '#f59e0b' : '#1e40af';
+  new Chart(document.getElementById('gaugeChart'), {
+    type: 'doughnut',
+    data: {
+      datasets: [{
+        data: [pct / 100, 1 - pct / 100],
+        backgroundColor: [gaugeColor, trackColor],
+        borderWidth: 0,
+        circumference: 180,
+        rotation: 270
+      }]
+    },
+    options: {
+      cutout: '72%',
+      plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      animation: { duration: 900 }
+    }
+  });
+})();
+</script>
 
 <div class="quick-menu">
   <a href="/export" class="quick-item"> <span><i class="bi bi-file-earmark-excel-fill"></i></span><span>Export</span> </a>
