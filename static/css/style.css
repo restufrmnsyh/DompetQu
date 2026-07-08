@@ -2272,6 +2272,7 @@ body.dark .auth-alert {
 .day-modal-box {
   background: var(--card-bg);
   width: 100%;
+  min-height: 0;
   max-width: 540px;
   max-height: 88vh;
   border-radius: 24px 24px 0 0;
@@ -2370,6 +2371,7 @@ body.dark .auth-alert {
 
 .day-modal-list {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   padding: 4px 0 24px;
   -webkit-overflow-scrolling: touch;
@@ -2761,19 +2763,18 @@ body.dark .toast {
 
 .app-container{
     opacity:0;
-    animation:pageFadeIn var(--motion-normal) var(--motion-ease) forwards;
-    will-change:transform,opacity;
+    animation:pageFadeIn .18s ease forwards;
+    will-change:opacity;
 }
 
 @keyframes pageFadeIn{
 
 from{
-opacity:0;
-transform:translateY(8px);
+    opacity:0;
 }
+
 to{
-opacity:1;
-transform:none;
+    opacity:1;
 }
 
 }

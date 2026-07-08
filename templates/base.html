@@ -257,13 +257,24 @@ setTimeout(() => {
 // 2. Form submit → loading state on button
 
 document.querySelectorAll('form').forEach(form => {
-  form.addEventListener('submit', function() {
-    const btn = form.querySelector('button[type="submit"], button:not([type="button"])');
-    if (btn) {
-      btn.disabled = true;
-      btn.classList.add("btn-loading");
+  form.addEventListener("submit", function(){
+
+    if(form.dataset.loading) return;
+
+    form.dataset.loading = "1";
+
+    const btn = form.querySelector(
+        'button[type="submit"], button:not([type="button"])'
+    );
+
+    if(btn){
+
+        btn.disabled = true;
+        btn.classList.add("btn-loading");
+
     }
-  });
+
+});
 });
 
 window.addEventListener("pagehide", () => {
@@ -283,7 +294,7 @@ window.addEventListener("pagehide", () => {
 const animatedItems = [
 
     ...document.querySelectorAll(
-        ".card, .stat-card, .quick-item"
+        ".card, .stat-card, .quick-item, .tx-card"
     )
 
 ];
@@ -298,31 +309,30 @@ animatedItems
 
     });
 
-const observer = new IntersectionObserver(entries => {
+if ("IntersectionObserver" in window) {
 
-    entries.forEach(entry => {
+    const observer = new IntersectionObserver(entries => {
 
-        if (entry.isIntersecting) {
+        entries.forEach(entry => {
 
-            entry.target.classList.add("animate-in");
+            if (entry.isIntersecting) {
 
-            observer.unobserve(entry.target);
+                entry.target.classList.add("animate-in");
+                observer.unobserve(entry.target);
 
-        }
+            }
 
+        });
+
+    }, {
+        threshold: 0.15
     });
 
-}, {
+    document.querySelectorAll(".lazy-animate").forEach(el => {
+        observer.observe(el);
+    });
 
-    threshold: 0.15
-
-});
-
-document.querySelectorAll(".lazy-animate").forEach(el => {
-
-    observer.observe(el);
-
-});    
+}
 // 4. Bottom nav — hapus loading state saat balik ke halaman
 window.addEventListener('pageshow', () => {
   document.querySelectorAll('.btn-loading').forEach(el => {
@@ -439,7 +449,7 @@ document.addEventListener("click", e => {
   });
 
   window.addEventListener("DOMContentLoaded", done);
-
+  window.addEventListener("pageshow", done);
 })();
 </script>
 </body>
