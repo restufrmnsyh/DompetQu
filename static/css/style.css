@@ -2829,7 +2829,7 @@ body.dark .toast {
   to   { opacity: 1; transform: translateY(0); }
 }
 .animate-in {
-  animation: contentSlideIn .3s ease forwards;
+  animation: contentSlideIn .3s ease both;
 }
 
 /* Saldo card shimmer saat load */

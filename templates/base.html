@@ -282,21 +282,11 @@ document.querySelectorAll('form').forEach(form => {
 });
 
 // 3. Staggered animate-in untuk kartu di halaman
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      entry.target.style.animationDelay = `${i * 40}ms`;
-      entry.target.classList.add('animate-in');
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
 
-document.querySelectorAll('.card, .stat-card, .quick-item').forEach(el => {
-  el.style.opacity = '0';
-  observer.observe(el);
+document.querySelectorAll('.card, .stat-card, .quick-item').forEach((el, i) => {
+  el.style.animationDelay = `${i * 40}ms`;
+  el.classList.add('animate-in');
 });
-
 // 4. Bottom nav — hapus loading state saat balik ke halaman
 window.addEventListener('pageshow', () => {
   document.querySelectorAll('.btn-loading').forEach(el => {
