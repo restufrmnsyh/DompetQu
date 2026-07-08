@@ -2747,28 +2747,74 @@ body.dark .toast {
 /* ============================================================
    MICRO-INTERACTIONS & TRANSITIONS
    ============================================================ */
-
 /* Page transition */
-.app-container {
-  animation: pageFadeIn .22s ease;
-}
-@keyframes pageFadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+
+:root{
+
+  --motion-fast:140ms;
+  --motion-normal:220ms;
+  --motion-slow:320ms;
+
+  --motion-ease:cubic-bezier(.2,.8,.2,1);
+
 }
 
+.app-container{
+    opacity:0;
+    animation:pageFadeIn var(--motion-normal) var(--motion-ease) forwards;
+    will-change:transform,opacity;
+}
+
+@keyframes pageFadeIn{
+
+from{
+opacity:0;
+transform:translateY(8px);
+}
+to{
+opacity:1;
+transform:none;
+}
+
+}
 /* Ripple */
 .ripple-host { position: relative; overflow: hidden; }
-.ripple-wave {
-  position: absolute;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
-  transform: scale(0);
-  animation: rippleAnim .5s linear;
-  pointer-events: none;
+/* ============================================================
+   RIPPLE (CSS ONLY)
+   ============================================================ */
+
+.ripple-host{
+
+    position:relative;
+
+    overflow:hidden;
+
+    isolation:isolate;
+
 }
-@keyframes rippleAnim {
-  to { transform: scale(4); opacity: 0; }
+
+.ripple-host::after{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:rgba(255,255,255,.12);
+
+    opacity:0;
+
+    transition:opacity var(--motion-fast);
+
+    pointer-events:none;
+
+}
+
+.ripple-host:active::after{
+
+    opacity:1;
+
 }
 
 /* Bottom nav active dot */
@@ -2776,22 +2822,111 @@ body.dark .toast {
   position: relative;
 }
 
-/* Bottom nav icon bounce on active */
-.bottom-nav a.active .nav-icon {
-  animation: iconBounce .3s cubic-bezier(.34,1.56,.64,1);
+.bottom-nav a{
+
+    transition:
+
+    color var(--motion-fast),
+
+    transform var(--motion-fast),
+
+    opacity var(--motion-fast);
+
 }
-@keyframes iconBounce {
-  0%   { transform: translateY(0) scale(1); }
-  50%  { transform: translateY(-4px) scale(1.15); }
-  100% { transform: translateY(0) scale(1); }
+
+.bottom-nav a.active{
+
+    transform:translateY(-2px);
+
+}
+.bottom-nav a:active{
+
+transform:scale(.95);
+
+}
+
+.bottom-nav a:not(.active){
+
+    opacity:.75;
+
+}
+
+.bottom-nav a.active{
+
+    opacity:1;
+
+}
+
+.nav-icon{
+
+transition:
+
+transform var(--motion-fast),
+
+opacity var(--motion-fast);
+
+}
+
+.bottom-nav span{
+
+transition:
+
+opacity var(--motion-fast);
+
+}
+
+.bottom-nav a{
+
+position:relative;
+
+}
+
+.bottom-nav a::before{
+
+content:"";
+
+position:absolute;
+
+top:-6px;
+
+left:50%;
+
+width:0;
+
+height:3px;
+
+border-radius:10px;
+
+background:var(--primary);
+
+transform:translateX(-50%);
+
+transition:width var(--motion-normal);
+
+}
+
+.bottom-nav a.active::before{
+
+width:26px;
+
 }
 
 /* Card tap feedback */
-.card, .quick-item, .action-item, .tx-card {
-  transition: transform .12s ease, box-shadow .12s ease;
+.card,
+.quick-item,
+.action-item,
+.tx-card{
+
+transition:
+
+transform var(--motion-fast) var(--motion-ease),
+
+opacity var(--motion-fast) var(--motion-ease);
+
 }
-.card:active, .quick-item:active, .action-item:active {
-  transform: scale(.985);
+
+.card:active, .quick-item:active, .action-item:active, .btn:active {
+  transform: scale(.98);
 }
 
 /* Button loading state */
@@ -2807,7 +2942,7 @@ body.dark .toast {
   border: 2px solid rgba(255,255,255,.4);
   border-top-color: white;
   border-radius: 50%;
-  animation: btnSpin .6s linear infinite;
+  animation: btnSpin .8s linear infinite;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -2816,8 +2951,8 @@ body.dark .toast {
 }
 
 /* Quick menu item tap */
-.quick-item {
-  transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s;
+.quick-item{
+transition: transform var(--motion-fast) var(--motion-ease);
 }
 .quick-item:active {
   transform: scale(.93);
@@ -2828,8 +2963,15 @@ body.dark .toast {
   from { opacity: 0; transform: translateY(16px); }
   to   { opacity: 1; transform: translateY(0); }
 }
-.animate-in {
-  animation: contentSlideIn .3s ease both;
+.animate-in{
+
+animation:
+
+contentSlideIn
+var(--motion-normal)
+var(--motion-ease)
+both;
+
 }
 
 /* Saldo card shimmer saat load */
@@ -2846,8 +2988,14 @@ body.dark .toast {
 }
 
 /* Nav link transition */
-.bottom-nav a {
-  transition: color .2s, transform .15s;
+.bottom-nav a{
+
+transition:
+
+color var(--motion-fast),
+
+transform var(--motion-fast);
+
 }
 .bottom-nav a:active {
   transform: scale(.88);
@@ -2864,9 +3012,30 @@ body.dark .toast {
 .action-item {
   transition: background .15s, transform .15s, box-shadow .15s;
 }
-.action-item:hover {
-  transform: translateX(3px);
-  box-shadow: 2px 0 8px rgba(0,0,0,.06);
+@media (hover:hover){
+
+.action-item:hover{
+
+transform:translateX(3px);
+
+box-shadow:2px 0 8px rgba(0,0,0,.06);
+
+}
+
+}
+
+@media (prefers-reduced-motion: reduce){
+
+*{
+
+animation:none !important;
+
+transition:none !important;
+
+scroll-behavior:auto !important;
+
+}
+
 }
 
 /* ============================================================
@@ -2882,6 +3051,6 @@ body.dark .toast {
   border-radius: 0 3px 3px 0;
   z-index: 999999;
   opacity: 0;
-  transition: width .2s ease, opacity .3s ease;
+  transition: opacity var(--motion-fast);
   box-shadow: 0 0 8px var(--primary);
 }

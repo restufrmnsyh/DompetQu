@@ -232,12 +232,12 @@ block content %}
 </script>
 
 <div class="quick-menu">
-  <a href="/export" class="quick-item"> <span><i class="bi bi-file-earmark-excel-fill"></i></span><span>Export</span> </a>
-  <a href="/backup" class="quick-item"> <span> <i class="bi bi-cloud-arrow-down-fill"></i></span><span>Backup</span> </a>
-  <a href="/kategori" class="quick-item">
+  <a href="/export" class="quick-item ripple-host"> <span><i class="bi bi-file-earmark-excel-fill"></i></span><span>Export</span> </a>
+  <a href="/backup" class="quick-item ripple-host"> <span> <i class="bi bi-cloud-arrow-down-fill"></i></span><span>Backup</span> </a>
+  <a href="/kategori" class="quick-item ripple-host">
     <span><i class="bi bi-tags-fill"></i></span><span>Kategori</span>
   </a>
-  <a href="#" class="quick-item" onclick="showResetModal(); return false;">
+  <a href="#" class="quick-item ripple-host" onclick="showResetModal(); return false;">
   <span><i class="bi bi-trash3-fill"></i></span>
   <span>Reset</span>
 </a>
@@ -279,9 +279,9 @@ block content %}
           Pengeluaran
         </option>
       </select>
-      <button type="submit" class="btn btn-sm">Filter</button>
+      <button type="submit" class="btn btn-sm ripple-host">Filter</button>
       {% if bulan_filter or jenis_filter %}
-      <a href="/" class="btn btn-sm btn-ghost">Reset</a>
+      <a href="/" class="btn btn-sm btn-ghost ripple-host">Reset</a>
       {% endif %}
     </form>
   </div>
@@ -352,7 +352,7 @@ block content %}
     untuk melihat statistik keuangan.
   </p>
 
-  <a href="/tambah" class="btn">
+  <a href="/tambah" class="btn ripple-host">
     ➕ Tambah Transaksi
   </a>
 </div>
@@ -374,7 +374,31 @@ const bulanPengeluaran = {{ bulan_pengeluaran|tojson}};
     new Chart(ctx1, {
       type: "doughnut",
       data: { labels, datasets: [{ data: values, backgroundColor: COLORS }] },
-      options: { responsive: true, plugins: { legend: { position: "bottom" } } }
+      options: {
+
+    responsive: true,
+
+    maintainAspectRatio: false,
+
+    resizeDelay: 200,
+
+    animation: {
+        duration: 450,
+        easing: "easeOutQuart"
+    },
+
+    interaction: {
+        intersect: false,
+        mode: "nearest"
+    },
+
+    plugins: {
+        legend: {
+            position: "bottom"
+        }
+    }
+
+}
     });
   }
 
@@ -390,10 +414,30 @@ const bulanPengeluaran = {{ bulan_pengeluaran|tojson}};
         ]
       },
       options: {
-        responsive: true,
-        plugins: { legend: { position: "bottom" } },
-        scales: { y: { beginAtZero: true } }
-      }
+
+    responsive: true,
+
+    maintainAspectRatio: false,
+
+    resizeDelay: 200,
+
+    animation: {
+        duration: 450,
+        easing: "easeOutQuart"
+    },
+
+    interaction: {
+        intersect: false,
+        mode: "nearest"
+    },
+
+    plugins: {
+        legend: {
+            position: "bottom"
+        }
+    }
+
+}
     });
   }
 
@@ -425,10 +469,10 @@ const bulanPengeluaran = {{ bulan_pengeluaran|tojson}};
     <p>Transaksi ini akan dihapus secara permanen<br>dan tidak dapat dikembalikan.</p>
 
     <div class="modal-actions">
-      <button class="modal-btn modal-cancel" onclick="closeDeleteModal()">
+      <button class="modal-btn modal-cancel ripple-host" onclick="closeDeleteModal()">
         <i class="bi bi-x-circle"></i> Batal
       </button>
-      <a id="confirmDeleteBtn" href="#" class="modal-btn modal-delete">
+      <a id="confirmDeleteBtn" href="#" class="modal-btn modal-delete ripple-host">
         <i class="bi bi-trash3-fill"></i> Hapus
       </a>
     </div>

@@ -254,39 +254,75 @@ setTimeout(() => {
    MICRO-INTERACTIONS
    ============================================================ */
 
-// 1. Ripple effect pada tombol & kartu quick-menu
-function addRipple(el) {
-  el.classList.add('ripple-host');
-  el.addEventListener('pointerdown', function(e) {
-    const r = el.getBoundingClientRect();
-    const size = Math.max(r.width, r.height) * 1.5;
-    const x = e.clientX - r.left - size / 2;
-    const y = e.clientY - r.top - size / 2;
-    const wave = document.createElement('span');
-    wave.className = 'ripple-wave';
-    wave.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px`;
-    el.appendChild(wave);
-    wave.addEventListener('animationend', () => wave.remove());
-  });
-}
-document.querySelectorAll('.btn, .quick-item, .bottom-nav a').forEach(addRipple);
-
 // 2. Form submit → loading state on button
+
 document.querySelectorAll('form').forEach(form => {
   form.addEventListener('submit', function() {
     const btn = form.querySelector('button[type="submit"], button:not([type="button"])');
     if (btn) {
-      setTimeout(() => btn.classList.add('btn-loading'), 0);
+      btn.disabled = true;
+      btn.classList.add("btn-loading");
     }
   });
 });
 
+window.addEventListener("pagehide", () => {
+
+    document
+        .querySelectorAll(".btn-loading")
+        .forEach(btn => {
+
+            btn.classList.remove("btn-loading");
+
+        });
+
+});
+
 // 3. Staggered animate-in untuk kartu di halaman
 
-document.querySelectorAll('.card, .stat-card, .quick-item').forEach((el, i) => {
-  el.style.animationDelay = `${i * 40}ms`;
-  el.classList.add('animate-in');
+const animatedItems = [
+
+    ...document.querySelectorAll(
+        ".card, .stat-card, .quick-item"
+    )
+
+];
+
+animatedItems
+    .slice(0, 6)
+    .forEach((el, i) => {
+
+        el.style.animationDelay = `${i * 45}ms`;
+
+        el.classList.add("animate-in");
+
+    });
+
+const observer = new IntersectionObserver(entries => {
+
+    entries.forEach(entry => {
+
+        if (entry.isIntersecting) {
+
+            entry.target.classList.add("animate-in");
+
+            observer.unobserve(entry.target);
+
+        }
+
+    });
+
+}, {
+
+    threshold: 0.15
+
 });
+
+document.querySelectorAll(".lazy-animate").forEach(el => {
+
+    observer.observe(el);
+
+});    
 // 4. Bottom nav — hapus loading state saat balik ke halaman
 window.addEventListener('pageshow', () => {
   document.querySelectorAll('.btn-loading').forEach(el => {
@@ -310,61 +346,100 @@ document.querySelectorAll('.action-item').forEach(el => {
 
 <script>
 (function () {
-  const bar = document.getElementById('nbar');
-  let _timer = null;
-  let _started = false;
+
+  const bar = document.getElementById("nbar");
+
+  let progress = 0;
+
+  let running = false;
+
+  function animate() {
+
+    if (!running) return;
+
+    progress += (90 - progress) * 0.08;
+
+    bar.style.width = progress + "%";
+
+    requestAnimationFrame(animate);
+
+  }
 
   function start() {
-    if (_started) return;
-    _started = true;
-    bar.style.transition = 'none';
-    bar.style.width = '0%';
-    bar.style.opacity = '1';
 
-    let w = 0;
-    _timer = setInterval(() => {
-      const step = w < 30 ? 12 : w < 60 ? 6 : w < 80 ? 2 : 0.3;
-      w = Math.min(w + step + Math.random() * step, 85);
-      bar.style.transition = 'width .15s ease';
-      bar.style.width = w + '%';
-    }, 160);
+    if (running) return;
+
+    running = true;
+
+    progress = 0;
+
+    bar.style.opacity = "1";
+
+    bar.style.width = "0%";
+
+    requestAnimationFrame(animate);
+
   }
 
   function done() {
-    clearInterval(_timer);
-    _started = false;
-    bar.style.transition = 'width .15s ease';
-    bar.style.width = '100%';
+
+    running = false;
+
+    bar.style.width = "100%";
+
     setTimeout(() => {
-      bar.style.transition = 'opacity .25s ease';
-      bar.style.opacity = '0';
-      setTimeout(() => { bar.style.width = '0'; }, 260);
-    }, 150);
+
+      bar.style.opacity = "0";
+
+      setTimeout(() => {
+
+        bar.style.width = "0%";
+
+      }, 200);
+
+    }, 120);
+
   }
 
-  document.addEventListener('click', function (e) {
-    const a = e.target.closest('a[href]');
+document.addEventListener("click", e => {
+
+    const a = e.target.closest("a[href]");
+
     if (!a) return;
-    const href = a.getAttribute('href');
+
+    const href = a.getAttribute("href");
+
     if (
-      !href ||
-      href.startsWith('#') ||
-      href.startsWith('javascript') ||
-      href.startsWith('http') ||
-      a.hasAttribute('download') ||
-      a.target === '_blank'
+        !href ||
+        href.startsWith("#") ||
+        href.startsWith("javascript") ||
+        href.startsWith("http") ||
+        a.target === "_blank" ||
+        a.hasAttribute("download")
     ) return;
-    start();
-  });
 
-  document.addEventListener('submit', function (e) {
+    // Jangan tampilkan loading jika menuju halaman yang sama
+    if (a.pathname === window.location.pathname &&
+        a.search === window.location.search) {
+        return;
+    }
+
+    start();
+
+});
+
+  document.addEventListener("submit", e => {
+
     const form = e.target;
-    if (form.enctype === 'multipart/form-data') return;
+
+    if (form.enctype === "multipart/form-data") return;
+
     start();
+
   });
 
-  window.addEventListener('DOMContentLoaded', done);
-  if (document.readyState !== 'loading') done();
+  window.addEventListener("DOMContentLoaded", done);
+
 })();
 </script>
 </body>

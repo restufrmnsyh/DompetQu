@@ -18,7 +18,7 @@
         <input type="month" name="bulan2" value="{{ bulan2 }}" class="filter-input" style="width:100%">
       </div>
     </div>
-    <button type="submit" class="btn btn-full" style="margin-top:12px">
+    <button type="submit" class="btn btn-full ripple-host" style="margin-top:12px">
       <i class="bi bi-arrow-left-right"></i> Bandingkan
     </button>
   </form>
@@ -144,15 +144,39 @@ if (labels.length > 0) {
       ]
     },
     options: {
-      responsive: true,
-      plugins: { legend: { position: "bottom" } },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: { callback: v => "Rp " + v.toLocaleString("id") }
+
+    responsive: true,
+
+    maintainAspectRatio: false,
+
+    resizeDelay: 200,
+
+    animation: {
+        duration: 450,
+        easing: "easeOutQuart"
+    },
+
+    interaction: {
+        intersect: false,
+        mode: "nearest"
+    },
+
+    plugins: {
+        legend: {
+            position: "bottom"
         }
-      }
+    },
+
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                callback: v => "Rp " + v.toLocaleString("id")
+            }
+        }
     }
+
+}
   });
 }
 </script>

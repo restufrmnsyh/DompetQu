@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<a href="/analisis/minggu?bulan={{ bulan_ini }}" class="card analisis-shortcut">
+<a href="/analisis/minggu?bulan={{ bulan_ini }}" class="card analisis-shortcut ripple-host">
   <div class="analisis-shortcut-icon">📅</div>
   <div>
     <div class="analisis-shortcut-title">
@@ -306,7 +306,7 @@
     <div class="modal-actions">
 
       <button
-        class="modal-btn modal-cancel"
+        class="modal-btn modal-cancel ripple-host"
         onclick="closeDeleteModal()">
 
         Batal
@@ -316,7 +316,7 @@
       <a
         id="confirmDeleteBtn"
         href="#"
-        class="modal-btn modal-delete">
+        class="modal-btn modal-delete ripple-host">
 
         Hapus
 
@@ -352,11 +352,39 @@ if (trenLabels.length > 0) {
       ]
     },
     options: {
-      responsive: true,
-      plugins: { legend: { position: "bottom" } },
-      scales: { y: { beginAtZero: true,
-        ticks: { callback: v => "Rp " + v.toLocaleString("id") } } }
+
+    responsive: true,
+
+    maintainAspectRatio: false,
+
+    resizeDelay: 200,
+
+    animation: {
+        duration: 450,
+        easing: "easeOutQuart"
+    },
+
+    interaction: {
+        intersect: false,
+        mode: "nearest"
+    },
+
+    plugins: {
+        legend: {
+            position: "bottom"
+        }
+    },
+
+    scales: {
+        y: {
+            beginAtZero: true,
+            ticks: {
+                callback: v => "Rp " + v.toLocaleString("id")
+            }
+        }
     }
+
+}
   });
 }
 </script>
@@ -421,7 +449,7 @@ async function showDayModal(tanggal) {
         <div class="day-modal-empty">
           <i class="bi bi-inbox"></i>
           <p>Tidak ada transaksi</p>
-          <a href="/tambah" class="btn btn-sm">➕ Tambah</a>
+          <a href="/tambah" class="btn btn-sm ripple-host">➕ Tambah</a>
         </div>`;
       return;
     }
