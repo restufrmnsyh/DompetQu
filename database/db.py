@@ -835,17 +835,19 @@ def tambah_user(username, password):
                 k,
                 user_id
             ))
-
         conn.commit()
-        return True
+
+        berhasil = True
 
     except Exception as e:
 
-        conn.rollback()
-        raise e    # <<< INI YANG PENTING
+        print("ERROR REGISTER:", e)
 
-    finally:
-        conn.close()
+        berhasil = False
+
+    conn.close()
+
+    return berhasil
 
 def ambil_pengeluaran_harian_minggu(user_id):
 
