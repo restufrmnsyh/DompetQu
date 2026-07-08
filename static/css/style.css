@@ -2743,3 +2743,145 @@ body.dark .toast {
 @media (prefers-reduced-motion: reduce) {
   .toast, .toast-hide, .toast-progress { animation: none !important; }
 }
+
+/* ============================================================
+   MICRO-INTERACTIONS & TRANSITIONS
+   ============================================================ */
+
+/* Page transition */
+.app-container {
+  animation: pageFadeIn .22s ease;
+}
+@keyframes pageFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Ripple */
+.ripple-host { position: relative; overflow: hidden; }
+.ripple-wave {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.28);
+  transform: scale(0);
+  animation: rippleAnim .5s linear;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* Bottom nav active dot */
+.bottom-nav a {
+  position: relative;
+}
+
+/* Bottom nav icon bounce on active */
+.bottom-nav a.active .nav-icon {
+  animation: iconBounce .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes iconBounce {
+  0%   { transform: translateY(0) scale(1); }
+  50%  { transform: translateY(-4px) scale(1.15); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+/* Card tap feedback */
+.card, .quick-item, .action-item, .tx-card {
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+.card:active, .quick-item:active, .action-item:active {
+  transform: scale(.985);
+}
+
+/* Button loading state */
+.btn-loading {
+  position: relative;
+  color: transparent !important;
+  pointer-events: none;
+}
+.btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: btnSpin .6s linear infinite;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+@keyframes btnSpin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Quick menu item tap */
+.quick-item {
+  transition: transform .15s cubic-bezier(.34,1.56,.64,1), box-shadow .15s;
+}
+.quick-item:active {
+  transform: scale(.93);
+}
+
+/* Scroll bounce hint (saat konten baru dimuat) */
+@keyframes contentSlideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-in {
+  animation: contentSlideIn .3s ease forwards;
+}
+
+/* Saldo card shimmer saat load */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 6px;
+  color: transparent !important;
+}
+
+/* Nav link transition */
+.bottom-nav a {
+  transition: color .2s, transform .15s;
+}
+.bottom-nav a:active {
+  transform: scale(.88);
+}
+
+/* Input focus ring */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, .15);
+}
+
+/* Action item slide */
+.action-item {
+  transition: background .15s, transform .15s, box-shadow .15s;
+}
+.action-item:hover {
+  transform: translateX(3px);
+  box-shadow: 2px 0 8px rgba(0,0,0,.06);
+}
+
+/* ============================================================
+   LOADING BAR
+   ============================================================ */
+
+#nbar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  width: 0;
+  background: var(--primary);
+  border-radius: 0 3px 3px 0;
+  z-index: 999999;
+  opacity: 0;
+  transition: width .2s ease, opacity .3s ease;
+  box-shadow: 0 0 8px var(--primary);
+}
