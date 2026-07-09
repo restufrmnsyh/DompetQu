@@ -345,16 +345,43 @@ block content %}
 
   {% else %}
   <div class="empty-state">
-  <div class="empty-icon">💰</div>
-  <h3>Belum Ada Transaksi</h3>
-  <p>
-    Mulai catat pemasukan dan pengeluaran pertamamu
-    untuk melihat statistik keuangan.
-  </p>
+  <div class="empty-visual">
+    <div class="empty-ring empty-ring-3"></div>
+    <div class="empty-ring empty-ring-2"></div>
+    <div class="empty-ring empty-ring-1"></div>
+    <div class="empty-icon-wrap">
+      <i class="bi bi-wallet2"></i>
+    </div>
+  </div>
 
-  <a href="/tambah" class="btn ripple-host">
-    ➕ Tambah Transaksi
+  <div class="empty-content">
+    <h3 class="empty-title">Mulai perjalanan finansialmu</h3>
+    <p class="empty-desc">Catat setiap pemasukan dan pengeluaran untuk mendapatkan gambaran keuangan yang lebih jelas.</p>
+  </div>
+
+  <div class="empty-steps">
+    <div class="empty-step">
+      <div class="empty-step-num">1</div>
+      <div class="empty-step-text">Tambah transaksi pertama</div>
+    </div>
+    <div class="empty-step-line"></div>
+    <div class="empty-step">
+      <div class="empty-step-num">2</div>
+      <div class="empty-step-text">Lihat insight keuangan</div>
+    </div>
+    <div class="empty-step-line"></div>
+    <div class="empty-step">
+      <div class="empty-step-num">3</div>
+      <div class="empty-step-text">Kontrol pengeluaranmu</div>
+    </div>
+  </div>
+
+  <a href="/tambah" class="btn btn-full ripple-host empty-cta">
+    <i class="bi bi-plus-circle-fill"></i>
+    Tambah Transaksi Pertama
   </a>
+
+  <p class="empty-hint">Gratis selamanya · Tanpa iklan · Data pribadimu aman</p>
 </div>
   {% endif %}
 </div>

@@ -3053,3 +3053,148 @@ scroll-behavior:auto !important;
   transition: opacity var(--motion-fast);
   box-shadow: 0 0 8px var(--primary);
 }
+
+/* ============================================================
+   EMPTY STATE — PROFESSIONAL
+   ============================================================ */
+
+.empty-state {
+  text-align: center;
+  padding: 32px 8px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
+/* Ilustrasi ring konsentris */
+.empty-visual {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 28px;
+}
+
+.empty-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--primary);
+  opacity: 0;
+  animation: ringPulse 3s ease-out infinite;
+}
+.empty-ring-1 { width: 72px;  height: 72px;  animation-delay: 0s; }
+.empty-ring-2 { width: 104px; height: 104px; animation-delay: .5s; }
+.empty-ring-3 { width: 136px; height: 136px; animation-delay: 1s; }
+
+@keyframes ringPulse {
+  0%   { opacity: .5; transform: scale(.85); }
+  60%  { opacity: .12; }
+  100% { opacity: 0; transform: scale(1); }
+}
+
+.empty-icon-wrap {
+  width: 64px; height: 64px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(16, 185, 129, .35);
+  position: relative;
+  z-index: 1;
+}
+
+/* Teks */
+.empty-content { margin-bottom: 24px; }
+
+.empty-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: var(--text);
+}
+
+.empty-desc {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin: 0;
+  max-width: 280px;
+}
+
+/* Steps */
+.empty-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 28px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.empty-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.empty-step-num {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-step-text {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.empty-step-line {
+  height: 1.5px;
+  flex: 0 0 20px;
+  background: var(--border);
+  margin-bottom: 20px;
+}
+
+/* CTA */
+.empty-cta {
+  max-width: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  margin-bottom: 16px;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 0;
+}
+
+body.dark .empty-icon-wrap {
+  box-shadow: 0 8px 24px rgba(16, 185, 129, .2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .empty-ring { animation: none; opacity: .08; }
+}
